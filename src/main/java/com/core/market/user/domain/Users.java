@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.apache.catalina.User;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Builder
@@ -23,19 +23,22 @@ public class Users {
 
     private String address;
 
-    private Double temperature;
+    @Column(nullable = false, columnDefinition = "GEOMETRY")
+    private Point point;
 
-    private Users(String name, String address, Double temperature) {
+    private Double temperature = 36.5;
+
+    private Users(String name, String address, Point point) {
         this.name = name;
         this.address = address;
-        this.temperature = temperature;
+        this.point = point;
     }
 
-    public static Users of(String name, String address, Double temperature) {
+    public static Users of(String name, String address, Point point) {
         return new Users(
                 name,
                 address,
-                temperature
+                point
         );
     }
 }
