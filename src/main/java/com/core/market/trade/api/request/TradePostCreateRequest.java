@@ -7,6 +7,7 @@ import java.util.List;
 public record TradePostCreateRequest(
         String title,
         String content,
+        Integer price,
         List<MultipartFile> files
 ) {
 }
