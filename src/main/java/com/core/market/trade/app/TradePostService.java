@@ -17,6 +17,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.List;
 
 @Service
@@ -29,10 +31,7 @@ public class TradePostService {
 
 
     @Transactional
-    public void createTradePost(TradePostCreateRequest request) {
-
-        List<String> imageUrlList = imageUploadService.uploadImagesInStorage(request.files());
-
+    public void createTradePost(TradePostCreateRequest request, List<MultipartFile> files) {
         TradePost tradePost = TradePost.builder()
                 .title(request.title())
                 .user(Users.of("jiwon", "청주시 흥덕구 봉명동", coordinateToPoint(1.0, 1.0) )) //TODO : Antentication으로 유저 추가
@@ -40,9 +39,12 @@ public class TradePostService {
                 .content(request.content())
                 .build();
 
-        List<TradePostImage> postImages = imageUrlList.stream().map(TradePostImage::from).toList();
-        tradePost.addAllImages(postImages);
-        System.out.println(org.hibernate.Version.getVersionString());
+        if (files != null) {
+            List<String> imageUrlList = imageUploadService.uploadImagesInStorage(files);
+            List<TradePostImage> postImages = imageUrlList.stream().map(TradePostImage::from).toList();
+            tradePost.addAllImages(postImages);
+        }
+
         tradePostRepository.save(tradePost);
     }
 

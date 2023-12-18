@@ -1,11 +1,9 @@
 package com.core.market.trade.api.response;
 
-import com.core.market.trade.domain.TradePost;
-import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.TradeStatus;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Optional;
 
 public record TradePostResponse(
         Long postId,
@@ -28,7 +26,9 @@ public record TradePostResponse(
                 dto.content(),
                 dto.price(),
                 dto.tradeStatus(),
-                dto.imageUrls().get(0),
+                dto.imageUrls().stream()
+                        .findFirst()
+                        .orElse(""),
                 dto.likeCount(),
                 dto.views(),
                 dto.createdAt(),

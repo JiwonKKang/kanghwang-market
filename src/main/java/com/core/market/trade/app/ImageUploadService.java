@@ -31,6 +31,9 @@ public class ImageUploadService {
         List<String> imageUrlList = new ArrayList<>();
 
         for (MultipartFile file : files) {
+            if (file.isEmpty()) {
+                continue;
+            }
             String ext = file.getContentType();
             String uuid = UUID.randomUUID().toString();
 
