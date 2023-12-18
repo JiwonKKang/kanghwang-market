@@ -1,4 +1,4 @@
-package com.core.market.common;
+package com.core.market.common.config;
 
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.cloud.storage.Storage;
