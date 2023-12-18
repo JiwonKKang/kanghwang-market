@@ -1,34 +1,32 @@
 package com.core.market.trade.api.response;
 
-import com.core.market.trade.domain.TradePost;
-import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.TradeStatus;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public record TradePostResponse(
+public record PostDetailResponse(
         Long postId,
         UserResponse seller,
         String title,
         String content,
         Integer price,
         TradeStatus tradeStatus,
-        String mainImageUrl,
+        List<String> imageUrls,
         int likeCount,
         int views,
         LocalDateTime createdAt,
         LocalDateTime modifiedAt
 ) {
-    public static TradePostResponse from(TradePostDTO dto) {
-        return new TradePostResponse(
+    public static PostDetailResponse from(TradePostDTO dto) {
+        return new PostDetailResponse(
                 dto.postId(),
                 dto.seller(),
                 dto.title(),
                 dto.content(),
                 dto.price(),
                 dto.tradeStatus(),
-                dto.imageUrls().get(0),
+                dto.imageUrls(),
                 dto.likeCount(),
                 dto.views(),
                 dto.createdAt(),

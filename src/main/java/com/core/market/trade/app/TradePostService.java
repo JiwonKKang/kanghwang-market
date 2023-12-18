@@ -3,7 +3,7 @@ package com.core.market.trade.app;
 import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
 import com.core.market.trade.api.request.TradePostCreateRequest;
-import com.core.market.trade.api.response.TradePostResponse;
+import com.core.market.trade.api.response.TradePostDTO;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.TradePostRepository;
@@ -13,9 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -47,7 +48,7 @@ public class TradePostService {
 
 
     @Transactional
-    public TradePostResponse getTradePost(Long postId) {
+    public TradePostDTO getTradePost(Long postId) {
         TradePost tradePost = tradePostRepository.findById(postId).orElseThrow(
                 () -> new CustomException(ErrorCode.POST_NOT_FOUND));
 
@@ -55,8 +56,15 @@ public class TradePostService {
 
         Integer likeCount = tradePostRepository.countLikeByPostId(postId);
 
-        return TradePostResponse.from(tradePost, likeCount);
+        return TradePostDTO.from(tradePost, likeCount);
 
+    }
+
+    public Page<TradePostDTO> getTradePostPage(Pageable pageable) {
+        return tradePostRepository.findAll(pageable).map(post -> {
+            Integer likeCount = tradePostRepository.countLikeByPostId(post.getId());
+            return TradePostDTO.from(post, likeCount);
+        });
     }
 
     private Point coordinateToPoint(Double x, Double y) { //TODO: 나중에 UserService로 이동해서 유저 저장할떄 사용
