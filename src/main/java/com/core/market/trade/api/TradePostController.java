@@ -14,6 +14,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -24,8 +27,9 @@ public class TradePostController {
 
     @Tag(name = "TradePost API",description = "거래글 API입니다.")
     @PostMapping
-    public Response<Void> createTradePost(TradePostCreateRequest request) {
-        tradePostService.createTradePost(request);
+    public Response<Void> createTradePost(@RequestPart TradePostCreateRequest request,
+                                          @RequestPart(required = false) List<MultipartFile> files) {
+        tradePostService.createTradePost(request, files);
         return Response.success();
     }
 
