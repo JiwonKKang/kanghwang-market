@@ -55,13 +55,9 @@ spring:
             token-uri: https://kauth.kakao.com/oauth/token
             user-info-uri: https://kapi.kakao.com/v2/user/me
             user-name-attribute: id
-
-kakao:
-  login-uri: ${KAKAO_PREFIX}/authorize?client_id=${KAKAO_API_KEY}&redirect_uri=${KAKAO_REDIRECT_URI}&response_type=code
-
 jwt:
   token:
-    secret-key: kang-hwang-market-123-123-goat-dsafsadfasdfsad
+    secret-key: ${SECRET_KEY}
   access-token:
     header : Access-token
     expire-length: 600
