@@ -7,7 +7,7 @@ import com.core.market.trade.api.response.TradePostDTO;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.TradePostRepository;
-import com.core.market.user.domain.Users;
+import com.core.market.user.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
@@ -34,7 +34,7 @@ public class TradePostService {
     public void createTradePost(TradePostCreateRequest request, List<MultipartFile> files) {
         TradePost tradePost = TradePost.builder()
                 .title(request.title())
-                .user(Users.of("jiwon", "청주시 흥덕구 봉명동", coordinateToPoint(1.0, 1.0) )) //TODO : Antentication으로 유저 추가
+                .user(Member.of("jiwon", "청주시 흥덕구 봉명동", coordinateToPoint(1.0, 1.0) )) //TODO : Antentication으로 유저 추가
                 .price(request.price())
                 .content(request.content())
                 .build();

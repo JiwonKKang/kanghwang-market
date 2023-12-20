@@ -1,0 +1,23 @@
+package com.core.market.user.cache;
+
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.redis.core.index.Indexed;
+
+import java.io.Serializable;
+
+@Getter
+@AllArgsConstructor(staticName = "of")
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
+public class RefreshToken implements Serializable {
+
+    @Id
+    private String email;
+
+    @Indexed
+    private String refreshToken;
+
+}

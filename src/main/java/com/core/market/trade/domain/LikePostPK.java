@@ -1,6 +1,6 @@
 package com.core.market.trade.domain;
 
-import com.core.market.user.domain.Users;
+import com.core.market.user.domain.Member;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -21,7 +21,7 @@ public class LikePostPK implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Member user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")

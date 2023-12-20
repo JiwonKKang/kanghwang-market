@@ -1,7 +1,7 @@
 package com.core.market.trade.domain;
 
 import com.core.market.common.BaseTimeEntity;
-import com.core.market.user.domain.Users;
+import com.core.market.user.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -42,7 +42,7 @@ public class TradePost extends BaseTimeEntity {
 
     @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id")
-    private Users user;
+    private Member user;
 
     public void addAllImages(List<TradePostImage> images) {
         for (TradePostImage image : images) {
