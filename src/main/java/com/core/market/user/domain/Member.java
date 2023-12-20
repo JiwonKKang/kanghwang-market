@@ -6,14 +6,12 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.locationtech.jts.geom.Point;
-import org.springframework.data.redis.core.RedisHash;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 
 @Entity
 @Builder
@@ -33,14 +31,16 @@ public class Member extends BaseTimeEntity implements UserDetails {
 
     private String email;
 
-    private String address;
+    @Embedded
+    private Address address;
 
     private String profileImageUrl;
 
-    private String password;
+    @Enumerated(value = EnumType.STRING)
+    private Role role = Role.ROLE_GUEST;
 
-    @Enumerated
-    private Role role;
+    @Enumerated(value = EnumType.STRING)
+    private SearchScope searchScope;
 
     @Column(columnDefinition = "GEOMETRY")
     private Point point;
@@ -48,24 +48,16 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Builder.Default
     private Double temperature = 36.5;
 
-    private Member(String name, String address, Point point) {
-        this.username = name;
-        this.address = address;
-        this.point = point;
-    }
-
-    public static Member of(String name, String address, Point point) {
-        return new Member(
-                name,
-                address,
-                point
-        );
-    }
-
-    public Member update(String email, String profileImageUrl) {
+    public Member oauthUpdate(String email, String profileImageUrl) {
         this.email = email;
         this.profileImageUrl = profileImageUrl;
         return this;
+    }
+
+    public void update(Address address, SearchScope searchScope, Point point) {
+        this.address = address;
+        this.searchScope = searchScope;
+        this.point = point;
     }
 
 
@@ -76,8 +68,9 @@ public class Member extends BaseTimeEntity implements UserDetails {
     }
 
     @Override
+    @JsonIgnore
     public String getPassword() {
-        return password;
+        return null;
     }
 
     @JsonIgnore

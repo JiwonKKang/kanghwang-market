@@ -34,21 +34,22 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Map<String, Object> originAttributes = oAuth2User.getAttributes();  // OAuth2User의 attribute
 
         // OAuth2 서비스 id (google, kakao, naver)
-        String registrationId = userRequest.getClientRegistration().getRegistrationId();    // 소셜 정보를 가져옵니다. oauth2/atholization/{kakao} 이부분에 해당
+        // 소셜 정보를 가져옵니다. oauth2/atholization/{kakao} 이부분에 해당
+        String registrationId = userRequest.getClientRegistration().getRegistrationId();
 
 
         // OAuthAttributes: OAuth2User의 attribute를 서비스 유형에 맞게 담아줄 클래스
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, originAttributes);
         Member member = saveOrUpdate(attributes);
         String email = member.getEmail();
-        List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities(email);
+        List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities(email); //Role 정보 가져오기
 
-        return new OAuth2CustomUser(registrationId, originAttributes, authorities, email); //Member DB에서 Role을 가져와서 넘겨야함
+        return new OAuth2CustomUser(registrationId, originAttributes, authorities, email);
     }
 
     private Member saveOrUpdate(OAuthAttributes authAttributes) {
         Member member = memberRepository.findByEmail(authAttributes.getEmail())
-                .map(entity -> entity.update(authAttributes.getEmail(), authAttributes.getProfileImageUrl()))
+                .map(entity -> entity.oauthUpdate(authAttributes.getEmail(), authAttributes.getProfileImageUrl()))
                 .orElse(authAttributes.toEntity());
 
         return memberRepository.save(member);

@@ -7,6 +7,7 @@ import com.core.market.trade.api.response.TradePostDTO;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.TradePostRepository;
+import com.core.market.user.app.MemberService;
 import com.core.market.user.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,13 +29,17 @@ public class TradePostService {
 
     private final TradePostRepository tradePostRepository;
     private final ImageUploadService imageUploadService;
+    private final MemberService memberService;
 
 
     @Transactional
-    public void createTradePost(TradePostCreateRequest request, List<MultipartFile> files) {
+    public void createTradePost(TradePostCreateRequest request, List<MultipartFile> files, String email) {
+
+        Member member = memberService.findByEmail(email);
+
         TradePost tradePost = TradePost.builder()
                 .title(request.title())
-                .user(Member.of("jiwon", "청주시 흥덕구 봉명동", coordinateToPoint(1.0, 1.0) )) //TODO : Antentication으로 유저 추가
+                .user(member)
                 .price(request.price())
                 .content(request.content())
                 .build();
@@ -69,13 +74,5 @@ public class TradePostService {
         });
     }
 
-    private Point coordinateToPoint(Double x, Double y) { //TODO: 나중에 UserService로 이동해서 유저 저장할떄 사용
-        String pointWKT = String.format("POINT(%f %f)", x, y);
-        try {
-            return (Point) new WKTReader().read(pointWKT);
-        } catch (ParseException e) {
-            log.warn("좌표변환중 오류 발생");
-            throw new CustomException(ErrorCode.POST_NOT_FOUND);
-        }
-    }
+
 }

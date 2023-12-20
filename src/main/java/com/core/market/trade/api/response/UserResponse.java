@@ -1,10 +1,11 @@
 package com.core.market.trade.api.response;
 
+import com.core.market.user.domain.Address;
 import com.core.market.user.domain.Member;
 
 public record UserResponse(
         String name,
-        String address,
+        Address address,
         Double temperature
 ) {
     public static UserResponse from(Member user) {
