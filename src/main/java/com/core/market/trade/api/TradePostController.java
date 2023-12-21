@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -49,12 +50,13 @@ public class TradePostController {
 
     @GetMapping
     @Operation(summary = "거래글 목록 검색")
+    @PreAuthorize("hasRole('ROLE_USER')")
     public Response<Page<TradePostResponse>> getTradePostPage(
             PostSearchCond searchCond,
             @AuthenticationPrincipal Member member,
             @PageableDefault(size = 9, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
-        Page<TradePostResponse> responses = tradePostService.getTradePostPage(searchCond, member, pageable)
+        Page<TradePostResponse> responses = tradePostService.getTradePostPage(searchCond, member.getId(), pageable)
                 .map(TradePostResponse::from);
         return Response.success(responses);
     }
