@@ -42,6 +42,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Enumerated(value = EnumType.STRING)
     private SearchScope searchScope;
 
+
     @Column(columnDefinition = "GEOMETRY")
     private Point point;
 

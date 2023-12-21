@@ -6,10 +6,9 @@ import com.core.market.user.api.request.MemberCreateRequest;
 import com.core.market.user.cache.MemberCacheRepository;
 import com.core.market.user.domain.Coordinate;
 import com.core.market.user.domain.Member;
-import com.core.market.user.domain.MemberRepository;
+import com.core.market.user.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -28,6 +27,11 @@ public class MemberService {
         return memberCacheRepository.getMember(email).orElseGet(() ->
                 memberRepository.findByEmail(email).orElseThrow(
                         () -> new CustomException(ErrorCode.USER_NOT_FOUND)));
+    }
+
+    public Member findById(Long id) {
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional

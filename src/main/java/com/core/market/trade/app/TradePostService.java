@@ -2,18 +2,16 @@ package com.core.market.trade.app;
 
 import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
+import com.core.market.trade.api.request.PostSearchCond;
 import com.core.market.trade.api.request.TradePostCreateRequest;
 import com.core.market.trade.api.response.TradePostDTO;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.trade.domain.TradePostImage;
-import com.core.market.trade.domain.TradePostRepository;
+import com.core.market.trade.domain.repository.TradePostRepository;
 import com.core.market.user.app.MemberService;
 import com.core.market.user.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.io.ParseException;
-import org.locationtech.jts.io.WKTReader;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -33,9 +31,9 @@ public class TradePostService {
 
 
     @Transactional
-    public void createTradePost(TradePostCreateRequest request, List<MultipartFile> files, String email) {
+    public void createTradePost(TradePostCreateRequest request, List<MultipartFile> files, Long id) {
 
-        Member member = memberService.findByEmail(email);
+        Member member = memberService.findById(id);
 
         TradePost tradePost = TradePost.builder()
                 .title(request.title())
@@ -67,11 +65,8 @@ public class TradePostService {
 
     }
 
-    public Page<TradePostDTO> getTradePostPage(Pageable pageable) {
-        return tradePostRepository.findAll(pageable).map(post -> {
-            Integer likeCount = tradePostRepository.countLikeByPostId(post.getId());
-            return TradePostDTO.from(post, likeCount);
-        });
+    public Page<TradePostDTO> getTradePostPage(PostSearchCond searchCond, Member member, Pageable pageable) {
+        return tradePostRepository.search(searchCond, member, pageable);
     }
 
 
