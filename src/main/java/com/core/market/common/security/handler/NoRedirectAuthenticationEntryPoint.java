@@ -17,6 +17,6 @@ public class NoRedirectAuthenticationEntryPoint implements AuthenticationEntryPo
                          AuthenticationException authException) throws IOException, ServletException {
         response.setContentType("application/json");
         response.setStatus(ErrorCode.UNAUTHORIZED_USER.getHttpStatus().value());
-        response.getWriter().write(Response.error(ErrorCode.UNAUTHORIZED_USER.name()).toStream());
+        response.getWriter().write(Response.error(ErrorCode.UNAUTHORIZED_USER).toStream());
     }
 }

@@ -8,6 +8,6 @@ public class GlobalControllerAdvice {
     @ExceptionHandler(value = CustomException.class)
     public ResponseEntity<?> errorHandler(CustomException e) {
         return ResponseEntity.status(e.getErrorCode().getHttpStatus())
-                .body(Response.error(e.getErrorCode().name()));
+                .body(Response.error(e.getErrorCode(),e.getMessage()));
     }
 }

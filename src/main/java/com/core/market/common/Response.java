@@ -11,7 +11,14 @@ public class Response<T> {
 
     private String responseCode;
 
+    private String message;
+
     private T result;
+
+    public Response(String message, T result) {
+        this.message = message;
+        this.result = result;
+    }
 
     public static <T> Response<T> success(T result) {
         return new Response<>("SUCCESS", result);
@@ -21,15 +28,19 @@ public class Response<T> {
         return new Response<>("SUCCESS", null);
     }
 
-    public static Response<Void> error(String code) {
-        return new Response<>(code, null);
+    public static Response<Void> error(ErrorCode errorCode) {
+        return new Response<>(errorCode.name(), errorCode.getMessage(),null);
+    }
+
+    public static Response<Void> error(ErrorCode errorCode, String message) {
+        return new Response<>(errorCode.name(), errorCode.getMessage() + " : " + message, null);
     }
 
     public String toStream() {
         if (result == null) {
             return "{" +
                     "\"resultCode\":" + "\"" + responseCode + "\"," +
-                    "\"result\":" + null + "}";
+                    "\"message\":" + "\"" +message + "\"" + "}";
         }
 
         return "{" +

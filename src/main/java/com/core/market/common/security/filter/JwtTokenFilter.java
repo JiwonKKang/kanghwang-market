@@ -1,5 +1,7 @@
 package com.core.market.common.security.filter;
 
+import com.core.market.common.CustomException;
+import com.core.market.common.ErrorCode;
 import com.core.market.common.util.CustomAuthorityUtils;
 import com.core.market.common.util.JwtTokenUtil;
 import com.core.market.common.util.JwtTokenizer;
@@ -42,27 +44,23 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        log.info("JWT 토큰 필터 진입");
 
         String refreshToken = jwtTokenUtil.extractRefreshToken(request)
                 .orElse(null);
 
         if (refreshToken != null) {
-            tokenCacheRepository.getRefreshToken(refreshToken)
-                    .ifPresent(token -> {
-                        sendAccessTokenAndRefreshToken(token.getEmail(), response);
-                    });
+            RefreshToken token = tokenCacheRepository.getRefreshToken(refreshToken)
+                    .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN, "리프레시 토큰이 유효하지 않습니다."));
+
+            sendAccessTokenAndRefreshToken(token, response);
             filterChain.doFilter(request, response);
             return;
         }
-
 
         jwtTokenUtil.extractAccessToken(request)
                 .flatMap(jwtTokenUtil::extractEmail)
                 .map(memberService::findByEmail)
                 .ifPresent(this::saveAuthentication);
-
-        log.info("JWT 토큰 필터 종료");
 
         filterChain.doFilter(request, response);
     }
@@ -75,29 +73,29 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
+        log.info("{} JWT 인증 성공", member.getUsername());
     }
 
-    private void sendAccessTokenAndRefreshToken(String email, HttpServletResponse response) {
+    private void sendAccessTokenAndRefreshToken(RefreshToken token, HttpServletResponse response) {
         HashMap<String, Object> claims = new HashMap<>();
 
-        List<String> roles = customAuthorityUtils.getAuthoritiesAsString(email);
+        List<String> roles = customAuthorityUtils.getAuthoritiesAsString(token.getEmail());
 
-        log.info("email - {}", email);
-
-        claims.put("email", email);
+        claims.put("email", token.getEmail());
         claims.put("roles", roles);
 
-        String reIssuedRefreshToken = reIssuedRefreshToken(email);
-        String reIssuedAccessToken = jwtTokenizer.generateAccessToken(claims, email, jwtTokenizer.getTokenExpiration());
+        String reIssuedRefreshToken = reIssuedRefreshToken(token);
+        String reIssuedAccessToken = jwtTokenizer.generateAccessToken(claims, token.getEmail(), jwtTokenizer.getTokenExpiration());
 
         jwtTokenUtil.sendAccessAndRefreshToken(response, reIssuedAccessToken, reIssuedRefreshToken);
+        log.info("액세스 토큰 및 리프레시 토큰 재발급 완료 - {}", token.getEmail());
     }
 
-    private String reIssuedRefreshToken(String email) {
-        tokenCacheRepository.deleteRefreshToken(email);
-        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken(email);
+    private String reIssuedRefreshToken(RefreshToken refreshToken) {
+        tokenCacheRepository.deleteRefreshToken(refreshToken.getRefreshToken());
+        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken();
         
-        tokenCacheRepository.setRefreshToken(RefreshToken.of(email, reIssuedRefreshToken));
+        tokenCacheRepository.setRefreshToken(RefreshToken.of(refreshToken.getEmail(), reIssuedRefreshToken));
         return reIssuedRefreshToken;
     }
 

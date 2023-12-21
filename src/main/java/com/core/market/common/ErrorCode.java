@@ -11,7 +11,8 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not founded"),
     POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "post not founded"),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "unauthorized user"),
-    INVALID_TOKEN(HttpStatus.BAD_REQUEST, "invalid token"),
+    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "invalid access token"),
+    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "invalid refresh token"),
     COORDINATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "coorinate error");
 
     private final HttpStatus httpStatus;

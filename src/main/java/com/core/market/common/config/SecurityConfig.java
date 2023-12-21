@@ -1,6 +1,7 @@
 package com.core.market.common.config;
 
 import com.core.market.common.security.*;
+import com.core.market.common.security.filter.ExceptionHandleFilter;
 import com.core.market.common.security.filter.JwtTokenFilter;
 import com.core.market.common.security.handler.NoRedirectAuthenticationEntryPoint;
 import com.core.market.common.security.handler.OAuth2LoginFailureHandler;
@@ -43,7 +44,8 @@ public class SecurityConfig {
                                 .anyRequest().authenticated())
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
                         httpSecurityExceptionHandlingConfigurer
-                                .authenticationEntryPoint(new NoRedirectAuthenticationEntryPoint()))
+                                .authenticationEntryPoint(new NoRedirectAuthenticationEntryPoint())
+                )
                 .oauth2Login(
                         oauth2 -> oauth2
                                 .loginPage("/oauth2/authorization/kakao")
@@ -56,6 +58,7 @@ public class SecurityConfig {
                 );
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new ExceptionHandleFilter(), JwtTokenFilter.class);
         return http.build();
 
     }
