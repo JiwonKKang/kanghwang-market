@@ -32,10 +32,6 @@ public class Response<T> {
         return new Response<>(errorCode.name(), errorCode.getMessage(),null);
     }
 
-    public static Response<Void> error(ErrorCode errorCode, String message) {
-        return new Response<>(errorCode.name(), errorCode.getMessage() + " : " + message, null);
-    }
-
     public String toStream() {
         if (result == null) {
             return "{" +

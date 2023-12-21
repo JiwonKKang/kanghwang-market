@@ -30,6 +30,12 @@ public class MemberCacheRepository {
         return Optional.ofNullable(user);
     }
 
+    public void deleteMember(String email) {
+        String key = getKey(email);
+        redisTemplate.delete(key);
+        log.info("리프레시 토큰 폐기 완료 - {}", key);
+    }
+
     public String getKey(String userName) {
         return "USER:" + userName;
     }

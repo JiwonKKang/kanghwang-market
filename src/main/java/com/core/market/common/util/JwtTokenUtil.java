@@ -1,5 +1,7 @@
 package com.core.market.common.util;
 
+import com.core.market.common.CustomException;
+import com.core.market.common.ErrorCode;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.io.Encoders;
@@ -91,8 +93,13 @@ public class JwtTokenUtil {
 
     public Optional<String> extractEmail(String token) {
 
-        return Optional.ofNullable(extractAllClaims(token)
-                .get(EMAIL_CLAIM, String.class));
+        try {
+            return Optional.ofNullable(extractAllClaims(token)
+                    .get(EMAIL_CLAIM, String.class));
+        } catch (Exception e) {
+            log.warn("엑세스 토큰으로 부터 이메일 추출중 예외 발생 - {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN, e.getMessage());
+        }
     }
 
     public Claims extractAllClaims(String token) {

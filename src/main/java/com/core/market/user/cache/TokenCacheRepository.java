@@ -37,7 +37,6 @@ public class TokenCacheRepository{
         String key = getKey(refreshToken);
         tokenRedisTemplate.delete(key);
         log.info("리프레시 토큰 폐기 완료 - {}", key);
-
     }
 
     public String getKey(String refreshToken) {

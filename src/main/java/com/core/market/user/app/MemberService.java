@@ -9,6 +9,7 @@ import com.core.market.user.domain.Member;
 import com.core.market.user.domain.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.sql.Update;
 import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
@@ -30,14 +31,17 @@ public class MemberService {
     }
 
     @Transactional
-    public void createMember(MemberCreateRequest request, String email) {
-        Member member = findByEmail(email);
+    public void createMember(MemberCreateRequest request, Long id) {
+        Member member = memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+
         Point point = coordinateToPoint(request.coordinate());
 
         member.update(request.address(), request.searchScope(), point);
+        memberCacheRepository.deleteMember(member.getEmail());
     }
 
-    private Point coordinateToPoint(Coordinate coordinate) { 
+    private Point coordinateToPoint(Coordinate coordinate) {
         String pointWKT = String.format("POINT(%f %f)", coordinate.lat(), coordinate.lng());
         try {
             return (Point) new WKTReader().read(pointWKT);

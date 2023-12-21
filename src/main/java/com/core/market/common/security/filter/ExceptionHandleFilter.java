@@ -27,7 +27,7 @@ public class ExceptionHandleFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
         } catch (CustomException e) {
             log.warn("토큰이 유효하지 않습니다.");
-            setErrorResponse(response, ErrorCode.INVALID_REFRESH_TOKEN);
+            setErrorResponse(response, e.getErrorCode());
         }
     }
 

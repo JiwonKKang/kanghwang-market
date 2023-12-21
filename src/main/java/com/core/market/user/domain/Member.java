@@ -58,6 +58,7 @@ public class Member extends BaseTimeEntity implements UserDetails {
         this.address = address;
         this.searchScope = searchScope;
         this.point = point;
+        this.role = Role.ROLE_USER;
     }
 
 

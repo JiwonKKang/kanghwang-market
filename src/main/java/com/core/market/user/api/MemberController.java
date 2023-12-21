@@ -21,7 +21,7 @@ public class MemberController {
     @Tag(name = "회원 API", description = "회원정보관련 API 입니다.")
     @PostMapping
     public Response<Void> createMember(@RequestBody MemberCreateRequest request, @AuthenticationPrincipal Member member) { //소셜로그인 이후 회원정보 추가 등록 API
-        memberService.createMember(request, member.getEmail());
+        memberService.createMember(request, member.getId());
         return Response.success();
     }
 }
