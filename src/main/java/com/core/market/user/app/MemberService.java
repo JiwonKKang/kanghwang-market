@@ -10,7 +10,6 @@ import com.core.market.user.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
-import org.locationtech.jts.io.ParseException;
 import org.locationtech.jts.io.WKTReader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,23 +34,27 @@ public class MemberService {
     }
 
     @Transactional
-    public void createMember(MemberCreateRequest request, Long id) {
-        Member member = memberRepository.findById(id)
-                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
+    public void createMember(MemberCreateRequest request, Member member) {
 
         Point point = coordinateToPoint(request.coordinate());
 
-        member.update(request.address(), request.searchScope(), point);
-        memberCacheRepository.deleteMember(member.getEmail());
+        Member updatedMember = member.update(request.address(), request.searchScope(), point);
+        memberRepository.saveAndFlush(updatedMember);
+        refreshMember(member);
     }
 
     private Point coordinateToPoint(Coordinate coordinate) {
         String pointWKT = String.format("POINT(%f %f)", coordinate.lat(), coordinate.lng());
         try {
             return (Point) new WKTReader().read(pointWKT);
-        } catch (ParseException e) {
+        } catch (Exception e) {
             log.warn("좌표변환중 오류 발생");
             throw new CustomException(ErrorCode.POST_NOT_FOUND);
         }
+    }
+
+    private void refreshMember(Member member) {
+        memberCacheRepository.deleteMember(member.getEmail());
+        memberCacheRepository.setMember(member);
     }
 }

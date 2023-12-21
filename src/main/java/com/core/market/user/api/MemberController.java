@@ -22,8 +22,9 @@ public class MemberController {
 
     @PostMapping
     @Operation(summary = "회원 추가정보 생성")
-    public Response<Void> createMember(@RequestBody MemberCreateRequest request, @AuthenticationPrincipal Member member) { //소셜로그인 이후 회원정보 추가 등록 API
-        memberService.createMember(request, member.getId());
+    public Response<Void> createMember(@RequestBody MemberCreateRequest request,
+                                       @AuthenticationPrincipal Member member) { //소셜로그인 이후 회원정보 추가 등록 API
+        memberService.createMember(request, member);
         return Response.success();
     }
 }

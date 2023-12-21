@@ -65,8 +65,9 @@ public class TradePostService {
 
     }
 
-    public Page<TradePostDTO> getTradePostPage(PostSearchCond searchCond, Member member, Pageable pageable) {
-        return tradePostRepository.search(searchCond, member, pageable);
+    public Page<TradePostDTO> getTradePostPage(PostSearchCond searchCond, Long memberId, Pageable pageable) {
+        Member me = memberService.findById(memberId);
+        return tradePostRepository.search(searchCond, me, pageable);
     }
 
 
