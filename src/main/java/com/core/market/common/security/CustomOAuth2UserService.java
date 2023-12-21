@@ -2,6 +2,7 @@ package com.core.market.common.security;
 
 import com.core.market.common.util.CustomAuthorityUtils;
 import com.core.market.user.domain.*;
+import com.core.market.user.domain.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.GrantedAuthority;

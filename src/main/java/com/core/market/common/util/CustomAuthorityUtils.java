@@ -2,8 +2,7 @@ package com.core.market.common.util;
 
 import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
-import com.core.market.user.domain.Member;
-import com.core.market.user.domain.MemberRepository;
+import com.core.market.user.domain.repository.MemberRepository;
 import com.core.market.user.domain.Role;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

@@ -26,7 +26,6 @@ public class ExceptionHandleFilter extends OncePerRequestFilter {
             // 다음 filter Chain에 대한 실행 (filter-chain의 마지막에는 Dispatcher Servlet이 실행된다.)
             filterChain.doFilter(request, response);
         } catch (CustomException e) {
-            log.warn("토큰이 유효하지 않습니다.");
             setErrorResponse(response, e.getErrorCode());
         }
     }
