@@ -2,10 +2,14 @@ package com.core.market.user.domain;
 
 import com.core.market.common.BaseTimeEntity;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.locationtech.jts.geom.Point;
+import org.n52.jackson.datatype.jts.GeometryDeserializer;
+import org.n52.jackson.datatype.jts.GeometrySerializer;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,7 +22,6 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
 @SQLDelete(sql = "UPDATE \"Member\" SET removed_at = NOW() WHERE id=?")
 public class Member extends BaseTimeEntity implements UserDetails {
 
@@ -44,6 +47,8 @@ public class Member extends BaseTimeEntity implements UserDetails {
 
 
     @Column(columnDefinition = "GEOMETRY")
+    @JsonSerialize(using = GeometrySerializer.class)
+    @JsonDeserialize(using = GeometryDeserializer.class)
     private Point point;
 
     @Builder.Default
@@ -55,11 +60,12 @@ public class Member extends BaseTimeEntity implements UserDetails {
         return this;
     }
 
-    public void update(Address address, SearchScope searchScope, Point point) {
+    public Member update(Address address, SearchScope searchScope, Point point) {
         this.address = address;
         this.searchScope = searchScope;
         this.point = point;
         this.role = Role.ROLE_USER;
+        return this;
     }
 
 
