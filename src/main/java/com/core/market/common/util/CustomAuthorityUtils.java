@@ -43,7 +43,7 @@ public class CustomAuthorityUtils {
 
         return memberRepository.findByEmail(email)
                 .map(member -> {
-                    if (member.getRole().equals(Role.GUEST)) {
+                    if (member.getRole().equals(Role.ROLE_GUEST)) {
                         return GUEST_ROLES;
                     }
                     return USER_ROLES;

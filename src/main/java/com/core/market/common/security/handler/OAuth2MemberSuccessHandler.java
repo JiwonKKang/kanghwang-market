@@ -55,7 +55,7 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
     private void redirect(HttpServletResponse response, String email, List<String> roles) throws IOException {
         String accessToken = delegateAccessToken(email, roles);  // Access Token 생성// Refresh Token 생성
-        String refreshToken = jwtTokenizer.generateRefreshToken(email);
+        String refreshToken = jwtTokenizer.generateRefreshToken();
         Member member = memberService.findByEmail(email);
         tokenCacheRepository.setRefreshToken(RefreshToken.of(member.getEmail(), refreshToken));
         memberCacheRepository.setMember(member);

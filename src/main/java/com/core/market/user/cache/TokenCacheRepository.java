@@ -1,24 +1,19 @@
 package com.core.market.user.cache;
 
-import com.core.market.user.cache.RefreshToken;
-import com.core.market.user.domain.Member;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.naming.factory.SendMailFactory;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.Duration;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 @Repository
 @Slf4j
 @RequiredArgsConstructor
 public class TokenCacheRepository{
 
-    @Qualifier("tokenRedisTemplate")
     private final RedisTemplate<String, RefreshToken> tokenRedisTemplate;
     private static final Duration USER_CACHE_TTL = Duration.ofDays(3);
 
@@ -32,12 +27,16 @@ public class TokenCacheRepository{
         String key = getKey(refreshToken);
         RefreshToken token = tokenRedisTemplate.opsForValue().get(key);
         log.info("Get Refresh Token from {} : {}", key, token);
+        if (token == null) {
+            return Optional.empty();
+        }
         return Optional.ofNullable(token);
     }
 
-    public void deleteRefreshToken(String email) {
-        String key = getKey(email);
-        tokenRedisTemplate.opsForValue().getAndDelete(key);
+    public void deleteRefreshToken(String refreshToken) {
+        String key = getKey(refreshToken);
+        tokenRedisTemplate.delete(key);
+        log.info("리프레시 토큰 폐기 완료 - {}", key);
 
     }
 
