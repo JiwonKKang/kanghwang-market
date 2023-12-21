@@ -27,6 +27,20 @@ public class SecurityConfig {
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtTokenFilter jwtTokenFilter;
 
+    private static final String[] SWAGGER_URIS = {
+            /* swagger v2 */
+            "/v2/api-docs",
+            "/swagger-resources",
+            "/swagger-resources/**",
+            "/configuration/ui",
+            "/configuration/security",
+            "/swagger-ui.html",
+            "/webjars/**",
+            /* swagger v3 */
+            "/v3/api-docs/**",
+            "/swagger-ui/**"
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
@@ -39,7 +53,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
                                 .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
-                                .requestMatchers("/sign-up").permitAll()
+                                .requestMatchers(SWAGGER_URIS).permitAll()
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().authenticated())
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
