@@ -4,6 +4,7 @@ import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
 import com.core.market.trade.api.request.PostSearchCond;
 import com.core.market.trade.api.request.TradePostCreateRequest;
+import com.core.market.trade.api.request.TradePostEditRequest;
 import com.core.market.trade.api.response.TradePostDTO;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.trade.domain.TradePostImage;
@@ -26,6 +27,7 @@ import java.util.List;
 public class TradePostService {
 
     private final TradePostRepository tradePostRepository;
+    private final LikePostService likePostService;
     private final ImageUploadService imageUploadService;
     private final MemberService memberService;
 
@@ -59,7 +61,7 @@ public class TradePostService {
 
         tradePost.viewCountUp(); /* JPA dirty checking 에 의하여 자동으로 update */
 
-        Integer likeCount = tradePostRepository.countLikeByPostId(postId);
+        Integer likeCount = likePostService.countLike(postId);
 
         return TradePostDTO.from(tradePost, likeCount);
 
@@ -71,4 +73,32 @@ public class TradePostService {
     }
 
 
+    public void deleteTradePost(Long postId, Member member) {
+        if (isOwner(postId, member.getId())) {
+            tradePostRepository.deleteById(postId);
+        }
+        throw new CustomException(ErrorCode.NO_PERMISSION_ERROR);
+    }
+
+    public void editTradePost(Long postId,
+                              TradePostEditRequest request,
+                              List<MultipartFile> files,
+                              Member member) {
+
+        if (isOwner(postId, member.getId())) {
+
+            /*TODO: requset객체에 삭제한 이미지 url과 추가한 이미지 multipartFile받오오면
+            *  삭제한 이미지는 findByUrl로 삭제하고 추가한 이미지는 추가*/
+
+        }
+
+        throw new CustomException(ErrorCode.NO_PERMISSION_ERROR);
+    }
+
+    private Boolean isOwner(Long postId, Long memberId) { //삭제 및 수정 권한이있는지 확인, 즉 주인인지 확인
+        TradePost tradePost = tradePostRepository.findById(postId).orElseThrow(() ->
+                new CustomException(ErrorCode.POST_NOT_FOUND));
+
+        return tradePost.getUser().getId().equals(memberId);
+    }
 }

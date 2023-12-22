@@ -15,8 +15,11 @@ public class NoRedirectAuthenticationEntryPoint implements AuthenticationEntryPo
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response,
                          AuthenticationException authException) throws IOException, ServletException {
-        response.setContentType("application/json");
-        response.setStatus(ErrorCode.UNAUTHORIZED_USER.getHttpStatus().value());
-        response.getWriter().write(Response.error(ErrorCode.UNAUTHORIZED_USER).toStream());
+        if (response.getStatus() != ErrorCode.REFRESH.getHttpStatus().value()) {
+            response.setContentType("application/json");
+            response.setStatus(ErrorCode.UNAUTHORIZED_USER.getHttpStatus().value());
+            response.getWriter().write(Response.error(ErrorCode.UNAUTHORIZED_USER).toStream());
+        }
+
     }
 }

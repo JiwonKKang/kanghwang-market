@@ -7,7 +7,7 @@ import lombok.*;
 @Entity
 @Builder
 @Getter
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "from")
 @NoArgsConstructor
 public class LikePost extends BaseTimeEntity {
 

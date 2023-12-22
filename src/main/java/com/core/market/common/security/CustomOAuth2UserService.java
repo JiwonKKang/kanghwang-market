@@ -42,6 +42,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         // OAuthAttributes: OAuth2User의 attribute를 서비스 유형에 맞게 담아줄 클래스
         OAuthAttributes attributes = OAuthAttributes.of(registrationId, originAttributes);
         Member member = saveOrUpdate(attributes);
+        log.info("소셜 로그인 유저 정보 또는 업데이트");
         String email = member.getEmail();
         List<GrantedAuthority> authorities = customAuthorityUtils.createAuthorities(email); //Role 정보 가져오기
 

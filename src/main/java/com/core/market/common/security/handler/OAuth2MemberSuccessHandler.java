@@ -56,14 +56,17 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
     private void redirect(HttpServletResponse response, String email, List<String> roles) throws IOException {
         String accessToken = delegateAccessToken(email, roles);  // Access Token 생성// Refresh Token 생성
-        String refreshToken = jwtTokenizer.generateRefreshToken();
+        String refreshToken = jwtTokenizer.generateRefreshToken(email);
         Member member = memberService.findByEmail(email);
+        tokenCacheRepository.deleteRefreshToken(email);
+        log.info("이미 존재하던 리프레시 토큰 폐기 및 새로운 리프레시 토큰 캐싱");
         tokenCacheRepository.setRefreshToken(RefreshToken.of(member.getEmail(), refreshToken));
         memberCacheRepository.setMember(member);
 
-        log.info("accessToken - {}", accessToken);
+        log.info("로그인 성공 accessToken 발급  - {}", accessToken);
+        log.info("로그인 성공 refreshToken 발급 - {}", refreshToken);
 
-        if (roles.contains("ROLE_GUEST")) { // 첫 소셜로그읺 하는 유저일경우 추가 회원정보를 입력하는 폼으로 리다이렉트
+        if (roles.contains("ROLE_GUEST")) { // 첫 소셜로그인 하는 유저일경우 추가 회원정보를 입력하는 폼으로 리다이렉트
             response.sendRedirect(createSignURI(accessToken, refreshToken));
             return;
         }

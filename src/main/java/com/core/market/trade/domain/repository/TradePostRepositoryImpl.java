@@ -28,9 +28,7 @@ import static com.core.market.user.domain.QMember.member;
 @RequiredArgsConstructor
 public class TradePostRepositoryImpl implements TradePostRepositoryCustom {
 
-
     private final JPAQueryFactory queryFactory;
-
 
     @Override
     public Page<TradePostDTO> search(PostSearchCond postSearchCond, Member me, Pageable pageable) { //회원이 설정한 범위안에있는 중고 거래글 검색

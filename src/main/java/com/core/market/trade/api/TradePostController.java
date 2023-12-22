@@ -3,6 +3,7 @@ package com.core.market.trade.api;
 import com.core.market.common.Response;
 import com.core.market.trade.api.request.PostSearchCond;
 import com.core.market.trade.api.request.TradePostCreateRequest;
+import com.core.market.trade.api.request.TradePostEditRequest;
 import com.core.market.trade.api.response.PostDetailResponse;
 import com.core.market.trade.api.response.TradePostResponse;
 import com.core.market.trade.app.TradePostService;
@@ -50,7 +51,6 @@ public class TradePostController {
 
     @GetMapping
     @Operation(summary = "거래글 목록 검색")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public Response<Page<TradePostResponse>> getTradePostPage(
             PostSearchCond searchCond,
             @AuthenticationPrincipal Member member,
@@ -59,5 +59,22 @@ public class TradePostController {
         Page<TradePostResponse> responses = tradePostService.getTradePostPage(searchCond, member.getId(), pageable)
                 .map(TradePostResponse::from);
         return Response.success(responses);
+    }
+
+    @DeleteMapping("/{postId}")
+    public Response<Void> deleteTradePost(@PathVariable Long postId,
+                                          @AuthenticationPrincipal Member member) {
+        tradePostService.deleteTradePost(postId, member);
+        return Response.success();
+    }
+
+    @PutMapping("/{postId}")
+    public Response<Void> editTradePost(@PathVariable Long postId,
+                                        @RequestPart TradePostEditRequest request,
+                                        @RequestPart(required = false) List<MultipartFile> files,
+                                        @AuthenticationPrincipal Member member) {
+
+        tradePostService.editTradePost(postId, request, files, member);
+        return Response.success();
     }
 }

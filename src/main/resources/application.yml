@@ -60,7 +60,7 @@ jwt:
     secret-key: ${SECRET_KEY}
   access-token:
     header : Access-token
-    expire-length: 600
+    expire-length: 30000
   refresh-token:
     header : Refresh-token
   redis:

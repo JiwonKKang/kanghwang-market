@@ -9,10 +9,12 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not founded"),
-    POST_NOT_FOUND(HttpStatus.BAD_REQUEST, "post not founded"),
+    POST_NOT_FOUND(HttpStatus.NOT_FOUND, "post not founded"),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "unauthorized user"),
-    INVALID_ACCESS_TOKEN(HttpStatus.BAD_REQUEST, "invalid access token"),
-    INVALID_REFRESH_TOKEN(HttpStatus.BAD_REQUEST, "invalid refresh token"),
+    NO_PERMISSION_ERROR(HttpStatus.FORBIDDEN, "user have no permission"),
+    INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "invalid access token"),
+    INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "invalid refresh token"),
+    REFRESH(HttpStatus.OK,"refresh token sucess"),
     COORDINATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "coorinate error");
 
     private final HttpStatus httpStatus;

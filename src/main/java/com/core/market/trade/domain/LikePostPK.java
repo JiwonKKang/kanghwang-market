@@ -15,7 +15,7 @@ import java.io.Serializable;
 @Embeddable
 @Getter
 @NoArgsConstructor
-@AllArgsConstructor
+@AllArgsConstructor(staticName = "of")
 @EqualsAndHashCode
 public class LikePostPK implements Serializable {
 
