@@ -20,4 +20,10 @@ public class CustomControllerAdvice {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                 .body(Response.error(ErrorCode.UNAUTHORIZED_USER, e.getMessage()));
     }
+
+    @ExceptionHandler(value = RuntimeException.class)
+    public ResponseEntity<?> unknownErrorHandler(Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Response.error(ErrorCode.INTERNAL_SERVER_ERROR, e.getMessage()));
+    }
 }
