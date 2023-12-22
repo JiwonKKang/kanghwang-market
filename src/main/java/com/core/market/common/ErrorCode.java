@@ -15,6 +15,7 @@ public enum ErrorCode {
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "invalid access token"),
     INVALID_REFRESH_TOKEN(HttpStatus.UNAUTHORIZED, "invalid refresh token"),
     REFRESH(HttpStatus.OK,"refresh token sucess"),
+    INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "there is internal server error"),
     COORDINATE_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "coorinate error");
 
     private final HttpStatus httpStatus;

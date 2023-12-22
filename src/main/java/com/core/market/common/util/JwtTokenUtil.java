@@ -78,6 +78,10 @@ public class JwtTokenUtil {
      * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
     public Optional<String> extractAccessToken(HttpServletRequest request) {
+        if (request.getHeader(accessHeader) == null) {
+            throw new CustomException(ErrorCode.UNAUTHORIZED_USER, "엑세스 토큰이 존재 하지않습니다.");
+        }
+
         return Optional.ofNullable(request.getHeader(accessHeader))
                 .filter(refreshToken -> refreshToken.startsWith(BEARER))
                 .map(refreshToken -> refreshToken.replace(BEARER, ""));

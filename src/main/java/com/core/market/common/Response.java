@@ -28,8 +28,12 @@ public class Response<T> {
         return new Response<>("SUCCESS", null);
     }
 
-    public static Response<Void> error(ErrorCode errorCode) {
-        return new Response<>(errorCode.name(), errorCode.getMessage(),null);
+    public static Response<Void> success(String message) {
+        return new Response<>(message, null);
+    }
+
+    public static Response<Void> error(ErrorCode errorCode, String message) {
+        return new Response<>(errorCode.name(), message,null);
     }
 
     public String toStream() {

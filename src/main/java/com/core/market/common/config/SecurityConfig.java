@@ -1,9 +1,8 @@
 package com.core.market.common.config;
 
 import com.core.market.common.security.*;
-import com.core.market.common.security.filter.ExceptionHandleFilter;
 import com.core.market.common.security.filter.JwtTokenFilter;
-import com.core.market.common.security.handler.NoRedirectAuthenticationEntryPoint;
+import com.core.market.common.security.handler.JwtAuthenticationEntryPoint;
 import com.core.market.common.security.handler.OAuth2LoginFailureHandler;
 import com.core.market.common.security.handler.OAuth2MemberSuccessHandler;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +26,7 @@ public class SecurityConfig {
     private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final CustomOAuth2UserService customOAuth2UserService;
     private final JwtTokenFilter jwtTokenFilter;
+    private final JwtAuthenticationEntryPoint jwtAuthenticationEntryPoint;
 
     private static final String[] SWAGGER_URIS = {
             /* swagger v2 */
@@ -59,7 +59,7 @@ public class SecurityConfig {
                                 .anyRequest().authenticated())
                 .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
                         httpSecurityExceptionHandlingConfigurer
-                                .authenticationEntryPoint(new NoRedirectAuthenticationEntryPoint())
+                                .authenticationEntryPoint(jwtAuthenticationEntryPoint)
                 )
                 .oauth2Login(
                         oauth2 -> oauth2
@@ -73,7 +73,6 @@ public class SecurityConfig {
                 );
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
-        http.addFilterBefore(new ExceptionHandleFilter(), JwtTokenFilter.class);
         return http.build();
 
     }

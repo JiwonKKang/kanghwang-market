@@ -46,31 +46,32 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
+        try {
+            log.info("-------------- 유저 검증 필터 진입 ---------------");
+            String refreshToken = jwtTokenUtil.extractRefreshToken(request) /*TODO: 혅재 리프레시 토큰이 유효하지않으면 없는거로
+                                                                                      간주하고 진행하지만 예외 던져주는걸로 변경*/
+                    .orElse(null);
 
-        log.info("-------------- 유저 검증 필터 진입 ---------------");
+            if (refreshToken != null) {
+                log.info("리프레시 토큰이 헤더에 존재 - {}", refreshToken);
+                String email = jwtTokenUtil.extractEmailFromRefreshToken(refreshToken);
+                RefreshToken token = tokenCacheRepository.getRefreshToken(email)
+                        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN, "리프레시 토큰이 유효하지 않습니다."));
 
-        String refreshToken = jwtTokenUtil.extractRefreshToken(request)
-                .orElse(null);
-        log.info("요청으로부터 리프레시 토큰 추출 완료");
+                log.info("리프레스 토큰 유효, 재발급 로직 실행");
+                sendAccessTokenAndRefreshToken(token, response);
+                filterChain.doFilter(request, response);
+                return;
+            }
 
-        if (refreshToken != null) {
-            log.info("리프레시 토큰이 헤더에 존재 - {}", refreshToken);
-            String email = jwtTokenUtil.extractEmailFromRefreshToken(refreshToken);
-            RefreshToken token = tokenCacheRepository.getRefreshToken(email)
-                    .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN, "리프레시 토큰이 유효하지 않습니다."));
-
-            log.info("리프레스 토큰 유효, 재발급 로직 실행");
-            sendAccessTokenAndRefreshToken(token, response);
-            filterChain.doFilter(request,response);
-            return;
+            log.info("액세스 토큰 추출 및 인증 정보 저장 로직 진입");
+            jwtTokenUtil.extractAccessToken(request)
+                    .flatMap(jwtTokenUtil::extractEmail)
+                    .map(memberService::findByEmail)
+                    .ifPresent(this::saveAuthentication);
+        } catch (Exception e) {
+            request.setAttribute("exception", e);
         }
-
-        log.info("액세스 토큰 추출 및 인증 정보 저장 로직 진입");
-        jwtTokenUtil.extractAccessToken(request)
-                .flatMap(jwtTokenUtil::extractEmail)
-                .map(memberService::findByEmail)
-                .ifPresent(this::saveAuthentication);
-
         filterChain.doFilter(request, response);
     }
 
@@ -97,9 +98,6 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String reIssuedAccessToken = jwtTokenizer.generateAccessToken(claims, token.getEmail(), jwtTokenizer.getTokenExpiration());
 
         jwtTokenUtil.sendAccessAndRefreshToken(response, reIssuedAccessToken, reIssuedRefreshToken);
-        response.setContentType("application/json");
-        response.setStatus(ErrorCode.REFRESH.getHttpStatus().value());
-        response.getWriter().write(Response.error(ErrorCode.REFRESH).toStream());
         log.info("액세스 토큰 및 리프레시 토큰 재발급 완료 - {}", token.getEmail());
         log.info("재발급 액세스 토큰 - {}", reIssuedAccessToken);
         log.info("재발급 리프레시 토큰 - {}", reIssuedRefreshToken);
