@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.ColumnDefault;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -14,6 +15,8 @@ import lombok.ToString;
 public class Address {
 
     private String province;
+
     private String city;
+
     private String district;
 }

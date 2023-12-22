@@ -1,13 +1,17 @@
 package com.core.market.user.domain;
 
 import com.core.market.common.BaseTimeEntity;
+import com.core.market.common.CustomException;
+import com.core.market.common.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.ColumnDefault;
 import org.hibernate.annotations.SQLDelete;
 import org.locationtech.jts.geom.Point;
+import org.locationtech.jts.io.WKTReader;
 import org.n52.jackson.datatype.jts.GeometryDeserializer;
 import org.n52.jackson.datatype.jts.GeometrySerializer;
 import org.springframework.security.core.GrantedAuthority;
@@ -30,26 +34,34 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @Column(name = "user_id")
     private Long id;
 
-    private String username;
 
-    private String email;
+    @Builder.Default
+    private String username = "";
+
+    @Builder.Default
+    private String email = "";
 
     @Embedded
-    private Address address;
+    @Builder.Default
+    private Address address = new Address("","","");
 
-    private String profileImageUrl;
+    @Builder.Default
+    private String profileImageUrl = "";
 
     @Enumerated(value = EnumType.STRING)
     private Role role = Role.ROLE_GUEST;
 
     @Enumerated(value = EnumType.STRING)
-    private SearchScope searchScope;
+    @Builder.Default
+    private SearchScope searchScope = SearchScope.NORMAL;
 
 
     @Column(columnDefinition = "GEOMETRY")
     @JsonSerialize(using = GeometrySerializer.class)
     @JsonDeserialize(using = GeometryDeserializer.class)
-    private Point point;
+    @Builder.Default
+    private Point point = coordinateToPoint(new Coordinate(0.0, 0.0));
+
 
     @Builder.Default
     private Double temperature = 36.5;
@@ -66,6 +78,15 @@ public class Member extends BaseTimeEntity implements UserDetails {
         this.point = point;
         this.role = Role.ROLE_USER;
         return this;
+    }
+
+    private static Point coordinateToPoint(Coordinate coordinate) {
+        String pointWKT = String.format("POINT(%f %f)", coordinate.lat(), coordinate.lng());
+        try {
+            return (Point) new WKTReader().read(pointWKT);
+        } catch (Exception e) {
+            throw new CustomException(ErrorCode.POST_NOT_FOUND);
+        }
     }
 
 
