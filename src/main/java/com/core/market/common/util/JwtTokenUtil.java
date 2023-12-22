@@ -102,6 +102,18 @@ public class JwtTokenUtil {
         }
     }
 
+    public String extractEmailFromRefreshToken(String refreshToken) {
+
+        Key key = jwtTokenizer.getKeyFromBase64EncodedKey();
+
+        return Jwts.parserBuilder()
+                .setSigningKey(key)
+                .build()
+                .parseClaimsJws(refreshToken)
+                .getBody()
+                .getSubject();
+    }
+
     public Claims extractAllClaims(String token) {
 
         Key key = jwtTokenizer.getKeyFromBase64EncodedKey();

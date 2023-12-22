@@ -2,6 +2,7 @@ package com.core.market.common.security.filter;
 
 import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
+import com.core.market.common.Response;
 import com.core.market.common.util.CustomAuthorityUtils;
 import com.core.market.common.util.JwtTokenUtil;
 import com.core.market.common.util.JwtTokenizer;
@@ -17,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -45,18 +47,25 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
 
+        log.info("-------------- 유저 검증 필터 진입 ---------------");
+
         String refreshToken = jwtTokenUtil.extractRefreshToken(request)
                 .orElse(null);
+        log.info("요청으로부터 리프레시 토큰 추출 완료");
 
         if (refreshToken != null) {
-            RefreshToken token = tokenCacheRepository.getRefreshToken(refreshToken)
+            log.info("리프레시 토큰이 헤더에 존재 - {}", refreshToken);
+            String email = jwtTokenUtil.extractEmailFromRefreshToken(refreshToken);
+            RefreshToken token = tokenCacheRepository.getRefreshToken(email)
                     .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN, "리프레시 토큰이 유효하지 않습니다."));
 
+            log.info("리프레스 토큰 유효, 재발급 로직 실행");
             sendAccessTokenAndRefreshToken(token, response);
-            filterChain.doFilter(request, response);
+            filterChain.doFilter(request,response);
             return;
         }
 
+        log.info("액세스 토큰 추출 및 인증 정보 저장 로직 진입");
         jwtTokenUtil.extractAccessToken(request)
                 .flatMap(jwtTokenUtil::extractEmail)
                 .map(memberService::findByEmail)
@@ -73,10 +82,10 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("{} JWT 인증 성공", member.getUsername());
+        log.info("{} 유저 인증 성공", member.getUsername());
     }
 
-    private void sendAccessTokenAndRefreshToken(RefreshToken token, HttpServletResponse response) {
+    private void sendAccessTokenAndRefreshToken(RefreshToken token, HttpServletResponse response) throws IOException {
         HashMap<String, Object> claims = new HashMap<>();
 
         List<String> roles = customAuthorityUtils.getAuthoritiesAsString(token.getEmail());
@@ -88,12 +97,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         String reIssuedAccessToken = jwtTokenizer.generateAccessToken(claims, token.getEmail(), jwtTokenizer.getTokenExpiration());
 
         jwtTokenUtil.sendAccessAndRefreshToken(response, reIssuedAccessToken, reIssuedRefreshToken);
+        response.setContentType("application/json");
+        response.setStatus(ErrorCode.REFRESH.getHttpStatus().value());
+        response.getWriter().write(Response.error(ErrorCode.REFRESH).toStream());
         log.info("액세스 토큰 및 리프레시 토큰 재발급 완료 - {}", token.getEmail());
+        log.info("재발급 액세스 토큰 - {}", reIssuedAccessToken);
+        log.info("재발급 리프레시 토큰 - {}", reIssuedRefreshToken);
     }
 
     private String reIssuedRefreshToken(RefreshToken refreshToken) {
-        tokenCacheRepository.deleteRefreshToken(refreshToken.getRefreshToken());
-        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken();
+        tokenCacheRepository.deleteRefreshToken(refreshToken.getEmail());
+        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken(refreshToken.getEmail());
         
         tokenCacheRepository.setRefreshToken(RefreshToken.of(refreshToken.getEmail(), reIssuedRefreshToken));
         return reIssuedRefreshToken;
