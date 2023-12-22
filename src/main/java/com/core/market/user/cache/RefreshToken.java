@@ -14,7 +14,6 @@ import java.io.Serializable;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefreshToken implements Serializable {
 
-    @Id
     private String email;
 
     @Indexed
