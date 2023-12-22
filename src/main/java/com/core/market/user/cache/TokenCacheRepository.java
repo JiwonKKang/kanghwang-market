@@ -18,29 +18,29 @@ public class TokenCacheRepository{
     private static final Duration USER_CACHE_TTL = Duration.ofDays(3);
 
     public void setRefreshToken(RefreshToken refreshToken) {
-        String key = getKey(refreshToken.getEmail());
+        String key = getKey(refreshToken.getRefreshToken());
         log.info("Set Refresh Token from {} : {}", key, refreshToken);
         tokenRedisTemplate.opsForValue().setIfAbsent(key, refreshToken, USER_CACHE_TTL);
     }
 
-    public Optional<RefreshToken> getRefreshToken(String email) {
-        String key = getKey(email);
+    public Optional<RefreshToken> getRefreshToken(String refreshToken) {
+        String key = getKey(refreshToken);
         RefreshToken token = tokenRedisTemplate.opsForValue().get(key);
         log.info("Get Refresh Token from {} : {}", key, token);
         if (token == null) {
             return Optional.empty();
         }
-        return Optional.ofNullable(token);
+        return Optional.of(token);
     }
 
-    public void deleteRefreshToken(String email) {
-        String key = getKey(email);
+    public void deleteRefreshToken(String refreshToken) {
+        String key = getKey(refreshToken);
         tokenRedisTemplate.delete(key);
         log.info("리프레시 토큰 폐기 완료 - {}", key);
     }
 
-    public String getKey(String email) {
-        return "refreshToken:" + email;
+    public String getKey(String refreshToken) {
+        return "refreshToken:" + refreshToken;
     }
 
 }

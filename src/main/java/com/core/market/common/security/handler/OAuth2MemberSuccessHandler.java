@@ -56,11 +56,9 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
     private void redirect(HttpServletResponse response, String email, List<String> roles) throws IOException {
         String accessToken = delegateAccessToken(email, roles);  // Access Token 생성// Refresh Token 생성
-        String refreshToken = jwtTokenizer.generateRefreshToken(email);
+        String refreshToken = jwtTokenizer.generateRefreshToken();
         Member member = memberService.findByEmail(email);
-        tokenCacheRepository.deleteRefreshToken(email);
-        log.info("이미 존재하던 리프레시 토큰 폐기 및 새로운 리프레시 토큰 캐싱");
-        tokenCacheRepository.setRefreshToken(RefreshToken.of(member.getEmail(), refreshToken));
+        tokenCacheRepository.setRefreshToken(RefreshToken.of(member.getEmail(), refreshToken)); // TODO: 로그인을 계속할경우 리프레시 토큰 누적 오류
         memberCacheRepository.setMember(member);
 
         log.info("로그인 성공 accessToken 발급  - {}", accessToken);

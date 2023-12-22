@@ -54,13 +54,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
 
             if (refreshToken != null) {
                 log.info("리프레시 토큰이 헤더에 존재 - {}", refreshToken);
-                String email = jwtTokenUtil.extractEmailFromRefreshToken(refreshToken);
-                RefreshToken token = tokenCacheRepository.getRefreshToken(email)
+                RefreshToken token = tokenCacheRepository.getRefreshToken(refreshToken)
                         .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN, "리프레시 토큰이 유효하지 않습니다."));
 
                 log.info("리프레스 토큰 유효, 재발급 로직 실행");
-                sendAccessTokenAndRefreshToken(token, response);
-                filterChain.doFilter(request, response);
+                sendAccessTokenAndRefreshToken(token, response); /*TODO : 이메일을 키로하니까 같은 리프레스토큰으로 계속 재발급가능함;;;;
+                                                                            걍 레디스에 쌓이더라도 토큰을 key로 해야할듯*/
+                filterChain.doFilter(request,response);
                 return;
             }
 
@@ -104,8 +104,8 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     }
 
     private String reIssuedRefreshToken(RefreshToken refreshToken) {
-        tokenCacheRepository.deleteRefreshToken(refreshToken.getEmail());
-        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken(refreshToken.getEmail());
+        tokenCacheRepository.deleteRefreshToken(refreshToken.getRefreshToken());
+        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken();
         
         tokenCacheRepository.setRefreshToken(RefreshToken.of(refreshToken.getEmail(), reIssuedRefreshToken));
         return reIssuedRefreshToken;
