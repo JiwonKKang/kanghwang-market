@@ -11,6 +11,7 @@ import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.repository.TradePostRepository;
 import com.core.market.user.app.MemberService;
 import com.core.market.user.domain.Member;
+import com.nimbusds.jose.util.Pair;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -74,31 +75,42 @@ public class TradePostService {
 
 
     public void deleteTradePost(Long postId, Member member) {
-        if (isOwner(postId, member.getId())) {
-            tradePostRepository.deleteById(postId);
+
+        Pair<TradePost, Boolean> postAndIsOwner = isOwner(postId, member.getId());
+        if (!postAndIsOwner.getRight()) {
+            throw new CustomException(ErrorCode.NO_PERMISSION_ERROR);
         }
-        throw new CustomException(ErrorCode.NO_PERMISSION_ERROR);
+        tradePostRepository.delete(postAndIsOwner.getLeft());
     }
 
+    @Transactional
     public void editTradePost(Long postId,
                               TradePostEditRequest request,
                               List<MultipartFile> files,
                               Member member) {
+        Pair<TradePost, Boolean> postAndIsOwner = isOwner(postId, member.getId());
 
-        if (isOwner(postId, member.getId())) {
-
-            /*TODO: requset객체에 삭제한 이미지 url과 추가한 이미지 multipartFile받오오면
-            *  삭제한 이미지는 findByUrl로 삭제하고 추가한 이미지는 추가*/
-
+        if (!postAndIsOwner.getRight()) {
+            throw new CustomException(ErrorCode.NO_PERMISSION_ERROR);
         }
 
-        throw new CustomException(ErrorCode.NO_PERMISSION_ERROR);
+        tradePostRepository.deleteAllByImageUrl(request.removeImageUrlList());
+        log.info("사용자가 삭제한 이미지 파일 - {}", request.removeImageUrlList());
+
+        if (files != null) {
+            List<String> imageUrlList = imageUploadService.uploadImagesInStorage(files);
+            List<TradePostImage> postImages = imageUrlList.stream().map(TradePostImage::from).toList();
+            postAndIsOwner.getLeft().addAllImages(postImages);
+            log.info("업로드 파일 확인 : 이미지 저장 완료 - {}", imageUrlList);
+        }
+
+        postAndIsOwner.getLeft().editTradePost(request);
     }
 
-    private Boolean isOwner(Long postId, Long memberId) { //삭제 및 수정 권한이있는지 확인, 즉 주인인지 확인
+    private Pair<TradePost, Boolean> isOwner(Long postId, Long memberId) { //삭제 및 수정 권한이있는지 확인, 즉 주인인지 확인
         TradePost tradePost = tradePostRepository.findById(postId).orElseThrow(() ->
                 new CustomException(ErrorCode.POST_NOT_FOUND));
 
-        return tradePost.getUser().getId().equals(memberId);
+        return Pair.of(tradePost, tradePost.getUser().getId().equals(memberId));
     }
 }

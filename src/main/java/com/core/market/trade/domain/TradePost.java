@@ -1,12 +1,14 @@
 package com.core.market.trade.domain;
 
 import com.core.market.common.BaseTimeEntity;
+import com.core.market.trade.api.request.TradePostEditRequest;
 import com.core.market.user.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.SQLDelete;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +18,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "UPDATE trade_post SET removed_at = NOW() WHERE id = ?")
 public class TradePost extends BaseTimeEntity {
 
     @Id
@@ -50,6 +53,12 @@ public class TradePost extends BaseTimeEntity {
         }
 
         tradePostImages.addAll(images);
+    }
+
+    public void editTradePost(TradePostEditRequest request) {
+        this.title = request.title();
+        this.content = request.content();
+        this.price = request.price();
     }
 
     public void viewCountUp() {
