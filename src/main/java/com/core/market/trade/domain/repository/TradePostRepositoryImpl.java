@@ -72,8 +72,9 @@ public class TradePostRepositoryImpl implements TradePostRepositoryCustom {
 
     private BooleanExpression isTrading(Boolean isTrading) {
         if (isTrading == null || isTrading.describeConstable().isEmpty() || isTrading) {
-            return tradePost.tradeStatus.eq(TradeStatus.TRADING);
+            return tradePost.tradeStatus.eq(TradeStatus.TRADING).and(tradePost.removedAt.isNull());
         }
-        return null;
+        return tradePost.removedAt.isNull(); // isNull -> 삭제되지않은것 즉, 삭제된것은 보여주지않는다
     }
+
 }

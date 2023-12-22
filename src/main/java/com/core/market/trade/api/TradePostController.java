@@ -45,7 +45,7 @@ public class TradePostController {
                                           @RequestPart(required = false) List<MultipartFile> files,
                                           @AuthenticationPrincipal Member member) {
         tradePostService.createTradePost(request, files, member.getId());
-        return Response.success();
+        return Response.success("거래글 생성 완료");
     }
 
 
@@ -62,19 +62,21 @@ public class TradePostController {
     }
 
     @DeleteMapping("/{postId}")
+    @Operation(summary = "거래글 삭제")
     public Response<Void> deleteTradePost(@PathVariable Long postId,
                                           @AuthenticationPrincipal Member member) {
         tradePostService.deleteTradePost(postId, member);
-        return Response.success();
+        return Response.success("거래글 삭제 완료");
     }
 
     @PutMapping("/{postId}")
+    @Operation(summary = "거래글 수정")
     public Response<Void> editTradePost(@PathVariable Long postId,
                                         @RequestPart TradePostEditRequest request,
                                         @RequestPart(required = false) List<MultipartFile> files,
                                         @AuthenticationPrincipal Member member) {
 
         tradePostService.editTradePost(postId, request, files, member);
-        return Response.success();
+        return Response.success("거래글 수정 완료");
     }
 }

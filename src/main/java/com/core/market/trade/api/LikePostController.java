@@ -5,6 +5,7 @@ import com.core.market.trade.api.response.TradePostResponse;
 import com.core.market.trade.app.LikePostService;
 import com.core.market.user.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -15,7 +16,8 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/like-posts")
+@RequestMapping("api/v1/like-posts")
+@Tag(name = "관심 거래글 API", description = "관심 거래글(좋아요) 관련 API입니다.")
 public class LikePostController {
 
     private final LikePostService likePostService;
