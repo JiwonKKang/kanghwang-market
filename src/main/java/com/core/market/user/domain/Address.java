@@ -1,17 +1,15 @@
 package com.core.market.user.domain;
 
 import jakarta.persistence.Embeddable;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import org.hibernate.annotations.ColumnDefault;
+import lombok.*;
 
-@NoArgsConstructor
-@AllArgsConstructor
+
 @Getter
 @Embeddable
 @ToString
+@NoArgsConstructor
+@AllArgsConstructor
+@Setter
 public class Address {
 
     private String province;

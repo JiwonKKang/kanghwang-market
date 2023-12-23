@@ -45,7 +45,7 @@ public record TradePostDTO(
         this(
                 post.getId(),
                 UserResponse.from(post.getUser()),
-                post.getContent(),
+                post.getTitle(),
                 post.getContent(),
                 post.getPrice(),
                 post.getTradeStatus(),

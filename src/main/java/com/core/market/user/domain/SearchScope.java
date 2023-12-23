@@ -1,6 +1,7 @@
 package com.core.market.user.domain;
 
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 
 @Getter

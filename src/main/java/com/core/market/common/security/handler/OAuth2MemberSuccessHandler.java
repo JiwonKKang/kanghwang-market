@@ -19,6 +19,7 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
+import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
@@ -50,16 +51,22 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
         log.info("roles - {}", roles);
 
         String email = oAuth2User.getEmail();
-        redirect(response, email, roles);
+        redirect(request, response, email, roles);
 
     }
 
-    private void redirect(HttpServletResponse response, String email, List<String> roles) throws IOException {
+    private void redirect(HttpServletRequest request, HttpServletResponse response, String email, List<String> roles) throws IOException {
         String accessToken = delegateAccessToken(email, roles);  // Access Token 생성// Refresh Token 생성
         String refreshToken = jwtTokenizer.generateRefreshToken();
         Member member = memberService.findByEmail(email);
-        tokenCacheRepository.setRefreshToken(RefreshToken.of(member.getEmail(), refreshToken)); // TODO: 로그인을 계속할경우 리프레시 토큰 누적 오류
-        memberCacheRepository.setMember(member);
+
+        if (StringUtils.hasText(request.getHeader("Access-Token"))) {
+            tokenCacheRepository.deleteRefreshToken(request.getHeader("Access-Token"));
+        }
+
+        tokenCacheRepository.setRefreshToken(RefreshToken.of(accessToken, member.getEmail(), refreshToken));
+
+        memberCacheRepository.setMember(member); // 로그인 시 유저 캐싱
 
         log.info("로그인 성공 accessToken 발급  - {}", accessToken);
         log.info("로그인 성공 refreshToken 발급 - {}", refreshToken);

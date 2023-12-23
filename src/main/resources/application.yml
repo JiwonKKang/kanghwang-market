@@ -73,3 +73,5 @@ logging:
     org:
       springframework:
         security: DEBUG
+      hibernate:
+        type: trace

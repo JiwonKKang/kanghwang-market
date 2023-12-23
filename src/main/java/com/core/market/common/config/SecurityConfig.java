@@ -1,6 +1,7 @@
 package com.core.market.common.config;
 
 import com.core.market.common.security.*;
+import com.core.market.common.security.filter.JwtExceptionHandleFilter;
 import com.core.market.common.security.filter.JwtTokenFilter;
 import com.core.market.common.security.handler.JwtAuthenticationEntryPoint;
 import com.core.market.common.security.handler.OAuth2LoginFailureHandler;
@@ -53,7 +54,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+                                .requestMatchers("/", "/error", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
                                 .requestMatchers(SWAGGER_URIS).permitAll()
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().authenticated())
@@ -73,6 +74,7 @@ public class SecurityConfig {
                 );
 
         http.addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class);
+        http.addFilterBefore(new JwtExceptionHandleFilter(), JwtTokenFilter.class);
         return http.build();
 
     }
