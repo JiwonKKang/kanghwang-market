@@ -48,8 +48,9 @@ public class JwtTokenFilter extends OncePerRequestFilter {
                                     FilterChain filterChain) throws ServletException, IOException {
         try {
             log.info("-------------- 유저 검증 필터 진입 ---------------");
-            String refreshToken = jwtTokenUtil.extractRefreshToken(request) /*TODO: 현재 리프레시 토큰이 유효하지않으면 없는거로 간주하고 진행하지만 예외 던져주는걸로 변경*/
+            String refreshToken = jwtTokenUtil.extractRefreshToken(request)
                     .orElse(null);
+
             String accessToken = jwtTokenUtil.extractAccessToken(request);
 
             if (refreshToken != null) {

@@ -1,5 +1,6 @@
 package com.core.market.chat.domain;
 
+import com.core.market.common.BaseTimeEntity;
 import com.core.market.user.domain.Member;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Chat {
+public class Chat extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,6 +27,5 @@ public class Chat {
     private Member sender;
 
     private String message;
-
 
 }

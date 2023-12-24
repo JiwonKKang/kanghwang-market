@@ -1,5 +1,6 @@
 package com.core.market.chat.domain;
 
+import com.core.market.common.BaseTimeEntity;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.user.domain.Member;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatRoom {
+public class ChatRoom extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
