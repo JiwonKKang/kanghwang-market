@@ -3,6 +3,7 @@ package com.core.market.trade.api.response;
 import com.core.market.trade.domain.TradePost;
 import com.core.market.trade.domain.TradePostImage;
 import com.core.market.trade.domain.TradeStatus;
+import com.core.market.user.api.response.UserResponse;
 import com.querydsl.core.annotations.QueryProjection;
 
 import java.time.LocalDateTime;

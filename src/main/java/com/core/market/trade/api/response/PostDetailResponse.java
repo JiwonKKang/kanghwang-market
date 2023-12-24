@@ -1,6 +1,7 @@
 package com.core.market.trade.api.response;
 
 import com.core.market.trade.domain.TradeStatus;
+import com.core.market.user.api.response.UserResponse;
 
 import java.time.LocalDateTime;
 import java.util.List;
