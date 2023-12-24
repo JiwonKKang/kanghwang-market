@@ -6,8 +6,11 @@ import com.core.market.user.app.MemberService;
 import com.core.market.user.domain.Member;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.geolatte.geom.V;
+import org.hibernate.annotations.Fetch;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -20,11 +23,18 @@ public class MemberController {
 
     private final MemberService memberService;
 
-    @PostMapping
+    @PatchMapping
     @Operation(summary = "회원 추가정보 생성")
-    public Response<Void> createMember(@RequestBody MemberCreateRequest request,
+    public Response<Void> updateMember(@RequestBody MemberCreateRequest request,
                                        @AuthenticationPrincipal Member member) { //소셜로그인 이후 회원정보 추가 등록 API
-        memberService.createMember(request, member);
+        memberService.updateMember(request, member);
         return Response.success();
+    }
+
+    @DeleteMapping("/logout")
+    @Operation(summary = "회원 로그아웃")
+    public Response<Void> logout(HttpServletRequest request, @AuthenticationPrincipal Member member) {
+        memberService.logout(request, member.getEmail());
+        return Response.success("로그아웃 성공");
     }
 }

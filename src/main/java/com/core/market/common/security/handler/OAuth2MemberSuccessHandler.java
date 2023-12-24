@@ -57,15 +57,15 @@ public class OAuth2MemberSuccessHandler extends SimpleUrlAuthenticationSuccessHa
 
     private void redirect(HttpServletRequest request, HttpServletResponse response, String email, List<String> roles) throws IOException {
         String accessToken = delegateAccessToken(email, roles);  // Access Token 생성// Refresh Token 생성
-        String refreshToken = jwtTokenizer.generateRefreshToken();
+        String refreshToken = jwtTokenizer.generateRefreshToken(email);
         Member member = memberService.findByEmail(email);
 
-        if (StringUtils.hasText(request.getHeader("Access-Token"))) {
-            tokenCacheRepository.deleteRefreshToken(request.getHeader("Access-Token"));
-        }
+        tokenCacheRepository.getRefreshToken(email) // 이미 로그인 한 유저가 또 로그인했을 경우 리프레시토큰 갱신
+                        .ifPresent(token ->
+                                tokenCacheRepository.deleteRefreshToken(token.getEmail())
+                        );
 
-        tokenCacheRepository.setRefreshToken(RefreshToken.of(accessToken, member.getEmail(), refreshToken));
-
+        tokenCacheRepository.setRefreshToken(RefreshToken.of(member.getEmail(), refreshToken));
         memberCacheRepository.setMember(member); // 로그인 시 유저 캐싱
 
         log.info("로그인 성공 accessToken 발급  - {}", accessToken);

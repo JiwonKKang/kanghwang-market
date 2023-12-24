@@ -46,38 +46,32 @@ public class JwtTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request,
                                     HttpServletResponse response,
                                     FilterChain filterChain) throws ServletException, IOException {
-        try {
-            log.info("-------------- 유저 검증 필터 진입 ---------------");
-            String refreshToken = jwtTokenUtil.extractRefreshToken(request)
-                    .orElse(null);
 
-            String accessToken = jwtTokenUtil.extractAccessToken(request);
+        log.info("-------------- 유저 검증 필터 진입 ---------------");
+        String refreshToken = jwtTokenUtil.extractRefreshToken(request)
+                .orElse(null);
 
-            if (refreshToken != null) {
-                log.info("리프레시 토큰이 헤더에 존재 - {}", refreshToken);
-                RefreshToken existingToken = tokenCacheRepository.getRefreshToken(accessToken)
-                        .orElseThrow(() -> new CustomException(ErrorCode.INVALID_ACCESS_TOKEN));
+        if (refreshToken != null) {
+            log.info("리프레시 토큰이 헤더에 존재 - {}", refreshToken);
 
-                if (refreshToken.equals(existingToken.getRefreshToken())) {
-                    log.info("리프레스 토큰 유효, 재발급 로직 실행");
-                    sendAccessTokenAndRefreshToken(existingToken, response);
-                    filterChain.doFilter(request,response);
-                    return;
-                }
-                throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
-            }
+            String email = jwtTokenUtil.extractEmailFromRefreshToken(refreshToken);
 
-            log.info("액세스 토큰 추출 및 인증 정보 저장 로직 진입");
-            jwtTokenUtil.extractEmail(accessToken)
-                    .map(memberService::findByEmail)
-                    .ifPresent(this::saveAuthentication);
+            RefreshToken validRefreshToken = tokenCacheRepository.getRefreshToken(email)
+                    .filter(existingToken -> existingToken.getRefreshToken().equals(refreshToken))
+                    .orElseThrow(() -> new CustomException(ErrorCode.INVALID_REFRESH_TOKEN));
 
-        } catch (Exception e) {
-
-            request.setAttribute("exception", e);
-
+            log.info("리프레스 토큰 유효, 재발급 로직 실행");
+            sendAccessTokenAndRefreshToken(validRefreshToken.getEmail(), response);
+            filterChain.doFilter(request,response);
+            return;
         }
 
+        String accessToken = jwtTokenUtil.extractAccessToken(request);
+        String userEmail = jwtTokenUtil.extractEmail(accessToken);
+        if (memberService.isLoginUser(userEmail)) {
+            Member member = memberService.findByEmail(userEmail);
+            saveAuthentication(member);
+        }
         filterChain.doFilter(request, response);
     }
 
@@ -92,26 +86,24 @@ public class JwtTokenFilter extends OncePerRequestFilter {
         log.info("{} 유저 인증 성공", member.getUsername());
     }
 
-    private void sendAccessTokenAndRefreshToken(RefreshToken token, HttpServletResponse response){
+    private void sendAccessTokenAndRefreshToken(String email, HttpServletResponse response){
         HashMap<String, Object> claims = new HashMap<>();
+        claims.put("email", email);
 
-        claims.put("email", token.getEmail());
-
-
-        String reIssuedAccessToken = jwtTokenizer.generateAccessToken(claims, token.getEmail(), jwtTokenizer.getTokenExpiration());
-        String reIssuedRefreshToken = reIssuedRefreshToken(token, reIssuedAccessToken);
+        String reIssuedAccessToken = jwtTokenizer.generateAccessToken(claims, email, jwtTokenizer.getTokenExpiration());
+        String reIssuedRefreshToken = reIssuedRefreshToken(email);
 
         jwtTokenUtil.sendAccessAndRefreshToken(response, reIssuedAccessToken, reIssuedRefreshToken);
-        log.info("액세스 토큰 및 리프레시 토큰 재발급 완료 - {}", token.getEmail());
+        log.info("액세스 토큰 및 리프레시 토큰 재발급 완료 - {}", email);
         log.info("재발급 액세스 토큰 - {}", reIssuedAccessToken);
         log.info("재발급 리프레시 토큰 - {}", reIssuedRefreshToken);
     }
 
-    private String reIssuedRefreshToken(RefreshToken refreshToken, String reIssuedAccessToken) {
-        tokenCacheRepository.deleteRefreshToken(refreshToken.getAccessToken());
-        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken();
+    private String reIssuedRefreshToken(String email) {
+        tokenCacheRepository.deleteRefreshToken(email);
+        String reIssuedRefreshToken = jwtTokenizer.generateRefreshToken(email);
         
-        tokenCacheRepository.setRefreshToken(RefreshToken.of(reIssuedAccessToken, refreshToken.getEmail(), reIssuedRefreshToken));
+        tokenCacheRepository.setRefreshToken(RefreshToken.of(email, reIssuedRefreshToken));
         return reIssuedRefreshToken;
     }
 

@@ -47,11 +47,12 @@ public class JwtTokenizer {
                 .compact();
     }
 
-    public String generateRefreshToken() {
+    public String generateRefreshToken(String email) {
 
         Key key = getKeyFromBase64EncodedKey();
 
         return Jwts.builder()
+                .setSubject(email)
                 .setIssuedAt(Calendar.getInstance().getTime())
                 .signWith(key)
                 .compact();

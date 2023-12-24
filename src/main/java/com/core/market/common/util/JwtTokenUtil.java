@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
+import java.time.Duration;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Optional;
 
@@ -42,16 +44,6 @@ public class JwtTokenUtil {
     private final JwtTokenizer jwtTokenizer;
 
     /**
-     * AccessToken 헤더에 실어서 보내기
-     */
-    public void sendAccessToken(HttpServletResponse response, String accessToken) {
-        response.setStatus(HttpServletResponse.SC_OK);
-
-        response.setHeader(accessHeader, accessToken);
-        log.info("재발급된 Access Token : {}", accessToken);
-    }
-
-    /**
      * AccessToken + RefreshToken 헤더에 실어서 보내기
      */
     public void sendAccessAndRefreshToken(HttpServletResponse response, String accessToken, String refreshToken) {
@@ -59,6 +51,12 @@ public class JwtTokenUtil {
         response.setHeader(accessHeader, BEARER + accessToken);
         response.setHeader(refreshHeader, BEARER + refreshToken);
         log.info("Access Token, Refresh Token 헤더 설정 완료");
+    }
+
+    public long getAccessTokenExpirationMillis(String accessToken) {
+
+        String replaced = accessToken.replace(BEARER, "");
+        return extractAllClaims(replaced).getExpiration().getTime() - Calendar.getInstance().getTimeInMillis();
     }
 
     /**
@@ -97,27 +95,30 @@ public class JwtTokenUtil {
      * 유효하지 않다면 빈 Optional 객체 반환
      */
 
-    public Optional<String> extractEmail(String token) {
+    public String extractEmailFromRefreshToken(String refreshToken) {
+        try {
+            Key key = jwtTokenizer.getKeyFromBase64EncodedKey();
+
+            return Jwts.parserBuilder()
+                    .setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(refreshToken)
+                    .getBody()
+                    .getSubject();
+        } catch (Exception e) {
+            log.warn("리프레시 토큰으로 부터 이메일 추출중 예외 발생 - {}", e.getMessage());
+            throw new CustomException(ErrorCode.INVALID_REFRESH_TOKEN);
+        }
+    }
+
+    public String extractEmail(String token) {
 
         try {
-            return Optional.ofNullable(extractAllClaims(token)
-                    .get(EMAIL_CLAIM, String.class));
+            return extractAllClaims(token).get(EMAIL_CLAIM, String.class);
         } catch (Exception e) {
             log.warn("엑세스 토큰으로 부터 이메일 추출중 예외 발생 - {}", e.getMessage());
             throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN, e.getMessage());
         }
-    }
-
-    public String extractEmailFromRefreshToken(String refreshToken) {
-
-        Key key = jwtTokenizer.getKeyFromBase64EncodedKey();
-
-        return Jwts.parserBuilder()
-                .setSigningKey(key)
-                .build()
-                .parseClaimsJws(refreshToken)
-                .getBody()
-                .getSubject();
     }
 
     public Claims extractAllClaims(String token) {
