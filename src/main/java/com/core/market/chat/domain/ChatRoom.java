@@ -9,6 +9,9 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Builder
 @Getter
@@ -28,6 +31,9 @@ public class ChatRoom extends BaseTimeEntity {
 
     @ManyToOne
     private Member buyer;
+
+    @OneToMany(mappedBy = "chatRoom")
+    private List<ChatHistory> chatHistories = new ArrayList<>();
 
 
 }
