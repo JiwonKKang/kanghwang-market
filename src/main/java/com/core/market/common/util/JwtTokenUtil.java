@@ -75,16 +75,12 @@ public class JwtTokenUtil {
      * 토큰 형식 : Bearer XXX에서 Bearer를 제외하고 순수 토큰만 가져오기 위해서
      * 헤더를 가져온 후 "Bearer"를 삭제(""로 replace)
      */
-    public String extractAccessToken(HttpServletRequest request) {
+    public Optional<String> extractAccessToken(HttpServletRequest request) {
 
-        String accessToken = request.getHeader(accessHeader);
+        return Optional.ofNullable(request.getHeader("Access-Token"))
+                .filter(accessToken -> accessToken.startsWith(BEARER))
+                .map(accessToken -> accessToken.replace(BEARER, ""));
 
-        if (accessToken == null || !accessToken.startsWith(BEARER)) {
-            throw new CustomException(ErrorCode.UNAUTHORIZED_USER, "엑세스 토큰이 존재하지 않거나 유효하지 않습니다.");
-        }
-
-
-        return accessToken.replace(BEARER, "");
     }
 
     /**

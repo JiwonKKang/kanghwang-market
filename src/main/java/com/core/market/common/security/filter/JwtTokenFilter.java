@@ -66,12 +66,13 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             return;
         }
 
-        String accessToken = jwtTokenUtil.extractAccessToken(request);
-        String userEmail = jwtTokenUtil.extractEmail(accessToken);
-        if (memberService.isLoginUser(userEmail)) {
-            Member member = memberService.findByEmail(userEmail);
-            saveAuthentication(member);
-        }
+
+        jwtTokenUtil.extractAccessToken(request)
+                .map(jwtTokenUtil::extractEmail)
+                .filter(memberService::isLoginUser)
+                .map(memberService::findByEmail)
+                .ifPresent(this::saveAuthentication);
+
         filterChain.doFilter(request, response);
     }
 
