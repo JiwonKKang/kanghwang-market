@@ -6,6 +6,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDateTime;
 
@@ -21,6 +23,7 @@ public class ChatHistory {
     private Long id;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private ChatRoom chatRoom;
 
     @ManyToOne
@@ -29,20 +32,24 @@ public class ChatHistory {
 
     private String message;
 
+    private int unreadCount;
+
     private LocalDateTime createdAt;
 
-    private ChatHistory(ChatRoom chatRoom, Member sender, String message, LocalDateTime createdAt) {
+    private ChatHistory(ChatRoom chatRoom, Member sender, String message, int unreadCount, LocalDateTime createdAt) {
         this.chatRoom = chatRoom;
         this.sender = sender;
         this.message = message;
+        this.unreadCount = unreadCount;
         this.createdAt = createdAt;
     }
 
-    public static ChatHistory of(ChatRoom chatRoom, Member sender, String message, LocalDateTime createdAt) {
+    public static ChatHistory of(ChatRoom chatRoom, Member sender, String message, int unreadCount, LocalDateTime createdAt) {
         return new ChatHistory(
                 chatRoom,
                 sender,
                 message,
+                unreadCount,
                 createdAt
         );
     }

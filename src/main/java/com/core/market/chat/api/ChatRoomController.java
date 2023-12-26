@@ -22,12 +22,10 @@ import org.springframework.web.bind.annotation.*;
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
-    private final SimpMessagingTemplate messagingTemplate;
 
     @MessageMapping("/chat/message")
     public void message(ChatMessage message) {
         chatRoomService.saveChatHistory(message);
-        messagingTemplate.convertAndSend("/sub/chat/room/" + message.roomId(), message);
     }
 
     @PostMapping("/{postId}")

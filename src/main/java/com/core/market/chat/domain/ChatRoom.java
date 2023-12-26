@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -24,9 +26,11 @@ public class ChatRoom extends BaseTimeEntity {
     private Long id;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private TradePost post;
 
     @ManyToOne
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Member seller;
 
     @ManyToOne

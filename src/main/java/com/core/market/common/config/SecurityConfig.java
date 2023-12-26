@@ -1,11 +1,11 @@
 package com.core.market.common.config;
 
-import com.core.market.common.security.*;
 import com.core.market.common.security.filter.JwtExceptionHandleFilter;
 import com.core.market.common.security.filter.JwtTokenFilter;
 import com.core.market.common.security.handler.JwtAuthenticationEntryPoint;
 import com.core.market.common.security.handler.OAuth2LoginFailureHandler;
 import com.core.market.common.security.handler.OAuth2MemberSuccessHandler;
+import com.core.market.user.app.CustomOAuth2UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -54,7 +54,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry ->
                         authorizationManagerRequestMatcherRegistry
-                                .requestMatchers("/", "/error", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
+                                .requestMatchers("/","/ws-market/**", "/error", "/error/**", "/css/**", "/images/**", "/js/**", "/favicon.ico", "/h2-console/**").permitAll()
                                 .requestMatchers(SWAGGER_URIS).permitAll()
                                 .requestMatchers(CorsUtils::isPreFlightRequest).permitAll()
                                 .anyRequest().authenticated())

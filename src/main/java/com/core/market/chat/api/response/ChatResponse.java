@@ -14,14 +14,15 @@ public record ChatResponse(
             Long senderId,
             Boolean isSender,
             String message,
-            LocalDateTime createdAt
-    ) {
+            int unreadCount,
+            LocalDateTime createdAt) {
 
         public static ChatHistoryResponse of(ChatHistory chatHistory, Long senderId) {
             return new ChatHistoryResponse(
                     chatHistory.getId(),
                     chatHistory.getId().equals(senderId),
                     chatHistory.getMessage(),
+                    chatHistory.getUnreadCount(),
                     chatHistory.getCreatedAt()
             );
         }
