@@ -1,6 +1,5 @@
 package com.core.market.chat.domain.repository;
 
-import com.core.market.chat.domain.ChatRoom;
 import org.springframework.data.repository.CrudRepository;
 
 import java.util.List;

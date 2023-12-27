@@ -2,12 +2,9 @@ package com.core.market.common.security.filter;
 
 import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
-import com.core.market.common.Response;
-import com.core.market.common.util.CustomAuthorityUtils;
 import com.core.market.common.util.JwtTokenUtil;
 import com.core.market.common.util.JwtTokenizer;
 import com.core.market.user.app.MemberService;
-import com.core.market.user.cache.MemberCacheRepository;
 import com.core.market.user.cache.RefreshToken;
 import com.core.market.user.cache.TokenCacheRepository;
 import com.core.market.user.domain.Member;
@@ -18,19 +15,12 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
 
 @RequiredArgsConstructor
 @Slf4j

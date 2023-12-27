@@ -1,7 +1,6 @@
 package com.core.market.trade.domain.repository;
 
 import com.core.market.trade.domain.TradePost;
-import com.core.market.trade.domain.TradePostImage;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;

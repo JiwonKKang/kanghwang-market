@@ -1,7 +1,5 @@
 package com.core.market.chat.api.request;
 
-import com.core.market.chat.api.response.ChatRoomResponse;
-
 import java.time.LocalDateTime;
 
 public record ChatMessage(

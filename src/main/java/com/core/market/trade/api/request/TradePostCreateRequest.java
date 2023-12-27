@@ -1,10 +1,6 @@
 package com.core.market.trade.api.request;
 
 import io.swagger.v3.oas.annotations.media.Schema;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public record TradePostCreateRequest(
 

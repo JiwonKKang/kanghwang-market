@@ -1,7 +1,6 @@
 package com.core.market.common.security.handler;
 
 import com.core.market.common.util.JwtTokenizer;
-import com.core.market.common.util.CustomAuthorityUtils;
 import com.core.market.user.cache.MemberCacheRepository;
 import com.core.market.user.cache.RefreshToken;
 import com.core.market.user.app.MemberService;
@@ -9,7 +8,6 @@ import com.core.market.user.domain.Member;
 import com.core.market.user.domain.OAuth2CustomUser;
 import com.core.market.user.cache.TokenCacheRepository;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +17,6 @@ import org.springframework.security.web.authentication.SimpleUrlAuthenticationSu
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
-import org.springframework.util.StringUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.io.IOException;
