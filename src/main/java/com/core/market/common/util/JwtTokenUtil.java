@@ -117,6 +117,10 @@ public class JwtTokenUtil {
         }
     }
 
+    public boolean validateToken(String token) {
+        return extractAllClaims(token) != null;
+    }
+
     public Claims extractAllClaims(String token) {
 
         Key key = jwtTokenizer.getKeyFromBase64EncodedKey();

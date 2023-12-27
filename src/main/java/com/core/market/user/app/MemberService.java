@@ -47,9 +47,16 @@ public class MemberService {
 
         Point point = coordinateToPoint(request.coordinate());
 
-        Member updatedMember = member.update(request.address(), request.searchScope(), point);
-        memberRepository.saveAndFlush(updatedMember);
+        Member loginUser = getMemberById(member);
+
+        loginUser.update(request.address(), request.searchScope(), point);
         refreshMember(member);
+        log.info("회원 추가 정보 갱신 완료 - {}", loginUser);
+    }
+
+    private Member getMemberById(Member member) {
+        return memberRepository.findById(member.getId())
+                .orElseThrow(() -> new CustomException(ErrorCode.USER_NOT_FOUND));
     }
 
     @Transactional

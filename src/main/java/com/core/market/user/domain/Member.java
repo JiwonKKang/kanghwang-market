@@ -26,6 +26,7 @@ import java.util.List;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 @SQLDelete(sql = "UPDATE member SET removed_at = NOW() WHERE user_id = ?")
 public class Member extends BaseTimeEntity implements UserDetails {
 

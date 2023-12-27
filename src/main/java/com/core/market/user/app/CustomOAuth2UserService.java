@@ -1,4 +1,4 @@
-package com.core.market.common.security;
+package com.core.market.user.app;
 
 import com.core.market.common.util.CustomAuthorityUtils;
 import com.core.market.user.domain.*;
