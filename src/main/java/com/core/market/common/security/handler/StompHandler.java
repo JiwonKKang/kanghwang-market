@@ -1,6 +1,7 @@
 package com.core.market.common.security.handler;
 
-import com.core.market.chat.app.ChatRoomService;
+import com.core.market.chat.domain.ChatRoom;
+import com.core.market.chat.domain.repository.ChatRoomRepository;
 import com.core.market.common.CustomException;
 import com.core.market.common.ErrorCode;
 import com.core.market.common.util.JwtTokenUtil;
@@ -22,25 +23,58 @@ import org.springframework.stereotype.Component;
 public class StompHandler implements ChannelInterceptor {
 
     private final JwtTokenUtil jwtTokenUtil;
-    private final ChatRoomService chatRoomService;
+    private final ChatRoomRepository chatRoomRepository;
 
     private static final String TOKEN_PREFIX = "Bearer ";
-
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
+        StompCommand command = accessor.getCommand();
 
-        if (StompCommand.CONNECT.equals(accessor.getCommand())) {
-
-            String token = accessor.getFirstNativeHeader("token");
-            log.info("웹소켓 연결 토큰 검증 시작 - {}", token);
-            if (token == null || !token.startsWith(TOKEN_PREFIX)) {
-                throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        switch (command) {
+            case CONNECT -> {
+                String email = validateToken(accessor);
+                connectChatRoom(accessor, email);
             }
-            log.info("웹소켓 토큰 검증 성공 - {}", message);
-            jwtTokenUtil.validateToken(token.replace(TOKEN_PREFIX, ""));
+            case SEND -> {
+                validateToken(accessor);
+            }
+
         }
         return message;
+    }
+
+    private String validateToken(StompHeaderAccessor accessor) {
+        String token = accessor.getFirstNativeHeader("token");
+        log.info("웹소켓 연결 토큰 검증 시작 - {}", token);
+        if (token == null || !token.startsWith(TOKEN_PREFIX)) {
+            log.info("웹소켓 토큰 검증 오류 발생");
+            throw new CustomException(ErrorCode.INVALID_ACCESS_TOKEN);
+        }
+        jwtTokenUtil.validateToken(token.replace(TOKEN_PREFIX, ""));
+        log.info("웹소켓 토큰 검증 성공");
+
+        return jwtTokenUtil.extractEmail(token.replace(TOKEN_PREFIX, ""));
+    }
+
+    private void connectChatRoom(StompHeaderAccessor accessor, String email) {
+        String StringRoomId = accessor.getFirstNativeHeader("roomId");
+
+        if (StringRoomId == null || StringRoomId.isEmpty()) {
+            log.info("웹소켓 요청 헤더 채팅방 번호 없음");
+            throw new CustomException(ErrorCode.INVALID_ROOM_ID);
+        }
+
+        Long roomId = Long.valueOf(StringRoomId);
+        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                .orElseThrow(() -> new CustomException(ErrorCode.ROOM_NOT_FOUND));
+
+        if (chatRoom.getSeller().getEmail().equals(email)) {
+            chatRoom.sellerIn();
+        } else {
+            chatRoom.buyerIn();
+        }
+        chatRoomRepository.save(chatRoom);
     }
 }

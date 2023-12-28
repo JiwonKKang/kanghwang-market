@@ -53,4 +53,9 @@ public class ChatHistory {
                 createdAt
         );
     }
+
+    public ChatHistory readMessage() {
+        this.unreadCount = unreadCount - 1;
+        return this;
+    }
 }

@@ -13,6 +13,7 @@ import org.locationtech.jts.geom.Point;
 import org.locationtech.jts.io.WKTReader;
 import org.n52.jackson.datatype.jts.GeometryDeserializer;
 import org.n52.jackson.datatype.jts.GeometrySerializer;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -33,7 +34,6 @@ public class Member extends BaseTimeEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
     private Long id;
-
 
     @Builder.Default
     private String username = "";
