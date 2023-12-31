@@ -17,6 +17,7 @@ import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.util.List;
 
@@ -44,7 +45,7 @@ public class ChatRoomController {
     @GetMapping("/{roomId}")
     @Operation(summary = "채팅 기록 불러오기")
     public Response<List<ChatHistoryResponse>> getChatHistories(@PathVariable Long roomId,
-                                                               @AuthenticationPrincipal Member member) {
+                                                                @AuthenticationPrincipal Member member) {
         return Response.success(chatRoomService.getChatRoomHistories(roomId, member.getId()));
     }
 
@@ -67,4 +68,5 @@ public class ChatRoomController {
         chatRoomService.disconnectChatRoom(roomId, member);
         return Response.success();
     }
+
 }

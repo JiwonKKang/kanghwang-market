@@ -11,6 +11,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "User not founded"),
     POST_NOT_FOUND(HttpStatus.NOT_FOUND, "post not founded"),
     BAD_REQUEST(HttpStatus.BAD_REQUEST, "bad request"),
+    ALARM_CONNECT_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "alarm connect error"),
     UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED, "unauthorized user"),
     NO_PERMISSION_ERROR(HttpStatus.FORBIDDEN, "user have no permission"),
     INVALID_ACCESS_TOKEN(HttpStatus.UNAUTHORIZED, "invalid access token"),

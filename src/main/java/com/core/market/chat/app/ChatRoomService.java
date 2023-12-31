@@ -34,6 +34,7 @@ public class ChatRoomService {
     private final MemberService memberService;
     private final ChatHistoryRepository chatHistoryRepository;
     private final SimpMessagingTemplate messagingTemplate;
+    private final ChatAlarmService chatAlarmService;
     private final JwtTokenUtil jwtTokenUtil;
 
 
@@ -68,8 +69,8 @@ public class ChatRoomService {
         ChatRoom chatRoom = getRoomById(roomId);
         updateUnreadCount(chatRoom, senderId); // 메시지를 가져온다는것은 여태까지 안읽은 채팅을 읽는다는 의미이기때문에 읽음 처리
 
-        if (chatRoom.isAllUserIn()) { /*채팅방에 이미 사람이 있었다면 입장하는 유저가 입장하면서 안읽었던 메세지들을 업데이트하지만
-                                                                기존 채팅방 유저의 화면에는 아직 안읽음으로 남아있기때문에 새로고침 메시지를 보냄*/
+        if (chatRoom.isAllUserIn()) { /* 채팅방에 이미 사람이 있었다면 입장하는 유저가 입장하면서 안읽었던 메세지들을 업데이트하지만
+                                          기존 채팅방 유저의 화면에는 아직 안읽음으로 남아있기때문에 새로고침 메시지를 보냄*/
             sendRefreshMessge(roomId);
         }
 
@@ -80,13 +81,17 @@ public class ChatRoomService {
 
     public void sendAndSaveChatHistory(ChatMessage message, String token) {
 
+
+
         ChatRoom chatRoom = getRoomById(message.roomId());
+        Member sender = getSender(token);
+        Member receiver = chatRoom.getOtherUser(sender); //TODO : 채팅은 안읽은 유저에게 SSE 이벤트 발송
 
         int unreadCount = chatRoom.isAllUserIn() ? 0 : 1;
 
         ChatHistory chatHistory = ChatHistory.of(
                 chatRoom,
-                getSender(token),
+                sender,
                 message.message(),
                 unreadCount,
                 message.createdAt()
@@ -94,8 +99,11 @@ public class ChatRoomService {
 
         chatHistoryRepository.save(chatHistory);
 
-        ChatMessage chatMessage = ChatMessage.of(MessageType.MESSAGE, chatHistory);
+        if (unreadCount == 1) {
+            chatAlarmService.send(receiver);
+        }
 
+        ChatMessage chatMessage = ChatMessage.of(MessageType.MESSAGE, chatHistory);
         messagingTemplate.convertAndSend("/sub/chat/room/" + chatMessage.roomId(), chatMessage);
     }
 

@@ -1,5 +1,6 @@
 package com.core.market.user.api;
 
+import com.core.market.chat.app.ChatAlarmService;
 import com.core.market.common.Response;
 import com.core.market.user.api.request.MemberCreateRequest;
 import com.core.market.user.api.response.UserResponse;
@@ -12,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 @RestController
 @RequiredArgsConstructor
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.*;
 public class MemberController {
 
     private final MemberService memberService;
+    private final ChatAlarmService chatAlarmService;
 
     @PatchMapping
     @Operation(summary = "회원 추가정보 생성")
@@ -41,5 +44,11 @@ public class MemberController {
     public Response<Void> logout(HttpServletRequest request, @AuthenticationPrincipal Member member) {
         memberService.logout(request, member.getEmail());
         return Response.success("로그아웃 성공");
+    }
+
+    @GetMapping("/subscribe")
+    @Operation(summary = "채팅방 알림을 위한 SSE 구독")
+    public SseEmitter subscribe(@AuthenticationPrincipal Member member) {
+        return chatAlarmService.connectAlarm(member.getId());
     }
 }

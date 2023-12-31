@@ -71,4 +71,11 @@ public class ChatRoom extends BaseTimeEntity {
         return buyerStatus == ChatUserStatus.IN && sellerStatus == ChatUserStatus.IN;
     }
 
+    public Member getOtherUser(Member sender) {
+        if (seller.equals(sender)) {
+            return buyer;
+        }
+        return seller;
+    }
+
 }

@@ -23,7 +23,7 @@ public interface ChatHistoryRepository extends JpaRepository<ChatHistory, Long> 
             """)
     int getTotalUnreadChatCount(@Param("memberId") Long memberId);
 
-    @Query(value = "select ChatHistory from ChatHistory ch where ch.chatRoom.id = :roomId order by ch.createdAt desc limit 1")
+    @Query(value = "select ch from ChatHistory ch where ch.chatRoom.id = :roomId order by ch.createdAt desc limit 1")
     ChatHistory findLastChatHistory(@Param("roomId") Long roomId);
 
 
